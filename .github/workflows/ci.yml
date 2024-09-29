@@ -1,0 +1,91 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches:
+      - "main"
+      - "master"
+
+env:
+  GO_VERSION: stable
+  GOLANGCI_LINT_VERSION: v1.61
+
+jobs:
+  detect-modules:
+    name: Detect go modules
+    runs-on: ubuntu-latest
+    outputs:
+      modules: ${{ steps.set-modules.outputs.modules }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version: ${{ env.GO_VERSION }}
+          cache-dependency-path: "**/*.sum"
+      - id: set-modules
+        run: echo "modules=$(go work edit -json | jq -c -r '[.Use[].DiskPath]')" >> $GITHUB_OUTPUT
+
+  lint:
+    name: Run golangci-lint
+    needs: detect-modules
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        modules: ${{ fromJSON(needs.detect-modules.outputs.modules) }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version: ${{ env.GO_VERSION }}
+          cache-dependency-path: "**/*.sum"
+      - name: golangci-lint ${{ matrix.modules }}
+        uses: golangci/golangci-lint-action@v6
+        with:
+          version: ${{ env.GOLANGCI_LINT_VERSION }}
+          working-directory: ${{ matrix.modules }}
+
+  test:
+    name: Run unit tests
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        go: ['1.23']
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version: ${{ matrix.go }}
+          cache-dependency-path: "**/*.sum"
+      - name: Test
+        run: go list -m -f '{{.Dir}}/...' | xargs go test -race -coverprofile=cover.out -coverpkg=./...
+      - name: Collect coverage
+        run: go tool cover -html=cover.out -o cover.html
+      - name: Upload coverage to codecov.io
+        uses: codecov/codecov-action@v4
+        env: 
+          CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
+
+  final-check:
+    name: Check the results
+    runs-on: ubuntu-latest
+    needs: [lint, test] 
+    if: ${{ always() }}
+    steps:
+      - name: Check if all jobs passed
+        run: |
+          needs_json='${{ toJSON(needs) }}'
+          job_names=$(echo "$needs_json" | jq -r 'keys[]')
+          failed_jobs=()
+          for job in $job_names; do
+            job_status=$(echo "$needs_json" | jq -r ".${job}.result")
+            if [ "$job_status" != "success" ]; then
+              failed_jobs+=($job)
+            fi
+          done
+          if [ ${#failed_jobs[@]} -ne 0 ]; then
+            echo "The following jobs failed: ${failed_jobs[@]}"
+            exit 1
+          else
+            echo "All jobs passed."
+          fi
