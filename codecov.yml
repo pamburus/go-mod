@@ -6,4 +6,4 @@ component_management:
     - component_id: mod-optional
       name: optional
       paths:
-        - optional/
+        - optional/**
