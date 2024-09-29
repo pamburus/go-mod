@@ -6,7 +6,7 @@ ci: lint test
 
 .PHONY: lint
 lint:
-	@go list -m -f '{{.Dir}}' | xargs -I{} echo golangci-lint run {}/...
+	@go list -m -f '{{.Dir}}' | xargs -I{} golangci-lint run {}/...
 
 .PHONY: test
 test:
