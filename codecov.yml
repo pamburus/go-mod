@@ -1,13 +1,11 @@
 comment:
-  layout: "header, diff, components"
+  layout: "header, diff, flags"
 
-component_management:
-  individual_components:
-    - component_id: mod-gi
-      name: gi
+flag_management:
+  individual_flags:
+    - name: gi
       paths:
         - gi/**
-    - component_id: mod-optional
-      name: optional
+    - name: optional
       paths:
         - optional/**
