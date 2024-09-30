@@ -1,9 +1,7 @@
 comment:
-  layout: "header, diff, components"
+  layout: "header, diff, flags"
 
-component_management:
-  individual_components:
-    - component_id: mod-optional
-      name: optional
-      paths:
-        - optional/**
+flags:
+  optional:
+    paths:
+      - optional/**
