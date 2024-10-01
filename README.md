@@ -1,4 +1,4 @@
-# go-mod [![GoDoc][doc-img]][doc] [![Build Status][ci-img]][ci] [![Coverage Status][cov-img]][cov] [![Coveralls Status][coveralls-img]][coveralls]
+# go-mod [![Build Status][ci-img]][ci] [![Coverage Status][cov-img]][cov] [![Coveralls Status][coveralls-img]][coveralls]
 
 A collection of useful go modules.
 
