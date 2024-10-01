@@ -76,7 +76,6 @@ jobs:
         with:
           parallel: true
           file: ${{ matrix.module }}/.cover.out
-          base-path: ${{ matrix.module }}
           flag-name: ${{ matrix.module }}
 
   finish:
