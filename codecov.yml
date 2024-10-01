@@ -1,7 +1,2 @@
 comment:
   layout: "header, diff, flags"
-
-flags:
-  optional:
-    paths:
-      - optional/**
