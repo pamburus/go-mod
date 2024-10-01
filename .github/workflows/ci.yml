@@ -77,9 +77,10 @@ jobs:
           parallel: true
           file: ${{ matrix.module }}/.cover.out
           flag-name: ${{ matrix.module }}
+          git-branch: ${{ github.ref_name }}
 
-  finish:
-    name: Check the results
+  complete:
+    name: Complete
     runs-on: ubuntu-latest
     needs: [lint, test, detect-modules]
     if: ${{ always() }}
@@ -106,3 +107,4 @@ jobs:
         with:
           parallel-finished: true
           carryforward: "${{ join(fromJSON(needs.detect-modules.outputs.modules), ',') }}"
+          git-branch: ${{ github.ref_name }}
