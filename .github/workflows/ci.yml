@@ -59,16 +59,13 @@ jobs:
           go-version: ${{ env.GO_VERSION }}
           cache-dependency-path: "**/*.sum"
       - name: Test
-        run: go test -race -coverprofile=cover.out -coverpkg=./...
-        working-directory: ${{ matrix.module }}
-      - name: Collect coverage
-        run: go tool cover -html=cover.out -o cover.html
+        run: go test -race -coverprofile=.cover.out -coverpkg=./...
         working-directory: ${{ matrix.module }}
       - name: Upload coverage to codecov.io
         uses: codecov/codecov-action@v4
         with:
+          files: ${{ matrix.module }}/.cover.out
           flags: ${{ matrix.module }}
-          working-directory: ${{ matrix.module }}
         env: 
           CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
       - name: List files
@@ -78,7 +75,7 @@ jobs:
         uses: coverallsapp/github-action@v2
         with:
           parallel: true
-          file: ${{ matrix.module }}/cover.out
+          file: ${{ matrix.module }}/.cover.out
           base-path: ${{ matrix.module }}
           flag-name: ${{ matrix.module }}
 
