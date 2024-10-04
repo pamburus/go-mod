@@ -11,56 +11,56 @@ modules := $(modules:$(PWD)/%=%)
 endif
 
 ## Run all tests
-all: ci
 .PHONY: all
+all: ci
 
 # ---
 
 ## Run continuous integration tests
-ci: lint test
 .PHONY: ci
+ci: lint test
 
 ## Run continuous integration tests for a module
+.PHONY: ci/%
 ci/%: lint/% test/%
 	@true
-.PHONY: ci/%
 
 # ---
 
 ## Run linters
-lint: $(modules:%=lint/%)
 .PHONY: lint
+lint: $(modules:%=lint/%)
 
 ## Run linters for a module
-lint/%:
-	golangci-lint run ./$*/...
 .PHONY: lint/%
+lint/%:
+	golangci-lint run $*/...
 
 # ---
 
 ## Run tests
-test: $(modules:%=test/%)
 .PHONY: test
+test: $(modules:%=test/%)
 
 ## Run tests for a module
-test/%:
-	go test -coverprofile=./$*/.cover.out ./$*/...
 .PHONY: test/%
+test/%:
+	go test -coverprofile=$*/.cover.out ./$*/...
 
 # ---
 
 ## Show coverage
-coverage: $(modules:%=coverage/%)
 .PHONY: coverage
+coverage: $(modules:%=coverage/%)
 
 ## Show coverage for a module
-coverage/%: test/%
-	go tool cover -func=./$*/.cover.out
 .PHONY: coverage/%
+coverage/%: test/%
+	go tool cover -func=$*/.cover.out | sed 's|^github\.com/pamburus/go-mod/||' | column -t
 
 # ---
 
 ## Clean up
+.PHONY: clean
 clean:
 	rm -f $(modules:%=%/.cover.out)
-.PHONY: clean
