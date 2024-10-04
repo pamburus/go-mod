@@ -235,3 +235,57 @@ func TestSomeOnly(t *testing.T) {
 
 	assert.Equal(t, []int{1, 2}, collected)
 }
+
+func TestCompare(t *testing.T) {
+	assert.Equal(t, 0, optval.Compare(
+		optval.Some(42),
+		optval.Some(42),
+	))
+	assert.Equal(t, -1, optval.Compare(
+		optval.Some(42),
+		optval.Some(43),
+	))
+	assert.Equal(t, 1, optval.Compare(
+		optval.Some(42),
+		optval.Some(41),
+	))
+	assert.Equal(t, -1, optval.Compare(
+		optval.Some(42),
+		optval.None[int](),
+	))
+	assert.Equal(t, 1, optval.Compare(
+		optval.None[int](),
+		optval.Some(42),
+	))
+	assert.Equal(t, 0, optval.Compare(
+		optval.None[int](),
+		optval.None[int](),
+	))
+}
+
+func TestLess(t *testing.T) {
+	assert.False(t, optval.Less(
+		optval.Some(42),
+		optval.Some(42),
+	))
+	assert.True(t, optval.Less(
+		optval.Some(42),
+		optval.Some(43),
+	))
+	assert.False(t, optval.Less(
+		optval.Some(42),
+		optval.Some(41),
+	))
+	assert.True(t, optval.Less(
+		optval.Some(42),
+		optval.None[int](),
+	))
+	assert.False(t, optval.Less(
+		optval.None[int](),
+		optval.Some(42),
+	))
+	assert.False(t, optval.Less(
+		optval.None[int](),
+		optval.None[int](),
+	))
+}

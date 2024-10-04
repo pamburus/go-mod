@@ -231,3 +231,69 @@ func TestSomePairOnly(t *testing.T) {
 
 	assert.Equal(t, map[int]string{1: "one", 2: "two"}, collected)
 }
+
+func TestCompare(t *testing.T) {
+	assert.Equal(t, 0, optpair.Compare(
+		optpair.Some(42, "forty-two"),
+		optpair.Some(42, "forty-two"),
+	))
+	assert.Equal(t, 1, optpair.Compare(
+		optpair.Some(42, "two"),
+		optpair.Some(42, "three"),
+	))
+	assert.Equal(t, -1, optpair.Compare(
+		optpair.Some(42, "three"),
+		optpair.Some(42, "two"),
+	))
+	assert.Equal(t, -1, optpair.Compare(
+		optpair.Some(42, "some"),
+		optpair.Some(43, "some"),
+	))
+	assert.Equal(t, 1, optpair.Compare(
+		optpair.Some(42, "some"),
+		optpair.Some(41, "some"),
+	))
+	assert.Equal(t, -1, optpair.Compare(
+		optpair.Some(42, "some"),
+		optpair.None[int, string](),
+	))
+	assert.Equal(t, 1, optpair.Compare(
+		optpair.None[int, string](),
+		optpair.Some(42, "some"),
+	))
+	assert.Equal(t, 0, optpair.Compare(
+		optpair.None[int, string](),
+		optpair.None[int, string](),
+	))
+}
+
+func TestLess(t *testing.T) {
+	assert.False(t, optpair.Less(
+		optpair.Some(42, "forty-two"),
+		optpair.Some(42, "forty-two"),
+	))
+	assert.True(t, optpair.Less(
+		optpair.Some(42, "three"),
+		optpair.Some(42, "two"),
+	))
+	assert.True(t, optpair.Less(
+		optpair.Some(42, "some"),
+		optpair.Some(43, "some"),
+	))
+	assert.False(t, optpair.Less(
+		optpair.Some(42, "some"),
+		optpair.Some(41, "some"),
+	))
+	assert.True(t, optpair.Less(
+		optpair.Some(42, "some"),
+		optpair.None[int, string](),
+	))
+	assert.False(t, optpair.Less(
+		optpair.None[int, string](),
+		optpair.Some(42, "some"),
+	))
+	assert.False(t, optpair.Less(
+		optpair.None[int, string](),
+		optpair.None[int, string](),
+	))
+}
