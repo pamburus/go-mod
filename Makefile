@@ -60,6 +60,18 @@ coverage/%: test/%
 
 # ---
 
+## Tidy up
+.PHONY: tidy
+tidy: $(modules:%=tidy/%)
+	go work sync
+
+## Tidy up a module
+.PHONY: tidy/%
+tidy/%:
+	cd $* && go mod tidy
+
+# ---
+
 ## Clean up
 .PHONY: clean
 clean:
