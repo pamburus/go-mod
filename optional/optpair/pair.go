@@ -1,72 +1,76 @@
-package optional
+package optpair
 
-import "iter"
+import (
+	"iter"
+
+	"github.com/pamburus/go-mod/optional/optval"
+)
 
 // ---
 
-// NewPair constructs a new optional Pair.
-func NewPair[V1, V2 any](v1 V1, v2 V2, valid bool) Pair[V1, V2] {
+// New constructs a new optional Pair.
+func New[V1, V2 any](v1 V1, v2 V2, valid bool) Pair[V1, V2] {
 	if valid {
-		return SomePair(v1, v2)
+		return Some(v1, v2)
 	}
 
-	return NonePair[V1, V2]()
+	return None[V1, V2]()
 }
 
-// SomePair returns an optional Pair that has provided inner pair of values.
-func SomePair[V1, V2 any](v1 V1, v2 V2) Pair[V1, V2] {
+// Some returns an optional Pair that has provided inner pair of values.
+func Some[V1, V2 any](v1 V1, v2 V2) Pair[V1, V2] {
 	return Pair[V1, V2]{
 		v1, v2,
 		true,
 	}
 }
 
-// NonePair returns an empty optional Pair.
-func NonePair[V1, V2 any]() Pair[V1, V2] {
+// None returns an empty optional Pair.
+func None[V1, V2 any]() Pair[V1, V2] {
 	return Pair[V1, V2]{}
 }
 
-// PairByKey returns SomePair in case it is found in the provided map by the provided key.
+// ByKey returns SomePair in case it is found in the provided map by the provided key.
 // Otherwise, it returns NonePair.
-func PairByKey[K comparable, V any, M ~map[K]V](key K, m M) Pair[K, V] {
+func ByKey[K comparable, V any, M ~map[K]V](key K, m M) Pair[K, V] {
 	v, ok := m[key]
 
-	return NewPair(key, v, ok)
+	return New(key, v, ok)
 }
 
-// MapPair transforms optional Pair[V1, V2] to Pair[R1, R1] using the given function f.
+// Map transforms optional Pair[V1, V2] to Pair[R1, R1] using the given function f.
 // If the provided Pair is NonePair, it returns NonePair.
-func MapPair[V1, V2, R1, R2 any, F ~func(V1, V2) (R1, R2)](pair Pair[V1, V2], f F) Pair[R1, R2] {
+func Map[V1, V2, R1, R2 any, F ~func(V1, V2) (R1, R2)](pair Pair[V1, V2], f F) Pair[R1, R2] {
 	if pair.IsSome() {
-		return SomePair(f(pair.values()))
+		return Some(f(pair.values()))
 	}
 
-	return NonePair[R1, R2]()
+	return None[R1, R2]()
 }
 
-// FlatMapPair transforms optional Pair[V1, V2] to Pair[R1, R1] using the given function f.
+// FlatMap transforms optional Pair[V1, V2] to Pair[R1, R1] using the given function f.
 // If the provided Pair is NonePair, it returns NonePair.
 // If f returns NonePair, it returns NonePair.
-func FlatMapPair[V1, V2, R1, R2 any, F ~func(V1, V2) Pair[R1, R2]](pair Pair[V1, V2], f F) Pair[R1, R2] {
+func FlatMap[V1, V2, R1, R2 any, F ~func(V1, V2) Pair[R1, R2]](pair Pair[V1, V2], f F) Pair[R1, R2] {
 	if pair.IsSome() {
 		return f(pair.values())
 	}
 
-	return NonePair[R1, R2]()
+	return None[R1, R2]()
 }
 
-// FilterPair calls the provided function f with the inner values of the provided Pair and returns the Pair if the function returns true.
+// Filter calls the provided function f with the inner values of the provided Pair and returns the Pair if the function returns true.
 // Otherwise, it returns NonePair.
-func FilterPair[V1, V2 any, F ~func(V1, V2) bool](pair Pair[V1, V2], f F) Pair[V1, V2] {
+func Filter[V1, V2 any, F ~func(V1, V2) bool](pair Pair[V1, V2], f F) Pair[V1, V2] {
 	if pair.IsSome() && f(pair.values()) {
 		return pair
 	}
 
-	return NonePair[V1, V2]()
+	return None[V1, V2]()
 }
 
-// SomePairOnly returns a sequence of pairs that contain only Some values.
-func SomePairOnly[V1, V2 any](pairs iter.Seq[Pair[V1, V2]]) iter.Seq2[V1, V2] {
+// SomeOnly returns a sequence of pairs that contain only Some values.
+func SomeOnly[V1, V2 any](pairs iter.Seq[Pair[V1, V2]]) iter.Seq2[V1, V2] {
 	return func(yield func(V1, V2) bool) {
 		for pair := range pairs {
 			if v1, v2, ok := pair.Unwrap(); ok {
@@ -78,36 +82,36 @@ func SomePairOnly[V1, V2 any](pairs iter.Seq[Pair[V1, V2]]) iter.Seq2[V1, V2] {
 	}
 }
 
-// Both returns a SomePair containing the inner values of value1 and value2 if both are Some.
+// IfBoth returns a SomePair containing the inner values of value1 and value2 if both are Some.
 // Otherwise, it returns NonePair.
-func Both[V1, V2 any](value1 Value[V1], value2 Value[V2]) Pair[V1, V2] {
+func IfBoth[V1, V2 any](value1 optval.Value[V1], value2 optval.Value[V2]) Pair[V1, V2] {
 	if v1, ok := value1.Unwrap(); ok {
 		if v2, ok := value2.Unwrap(); ok {
-			return SomePair(v1, v2)
+			return Some(v1, v2)
 		}
 	}
 
-	return NonePair[V1, V2]()
+	return None[V1, V2]()
 }
 
 // Left returns the left value of the provided pair if it is Some.
 // Otherwise, it returns None.
-func Left[V1, V2 any](pair Pair[V1, V2]) Value[V1] {
+func Left[V1, V2 any](pair Pair[V1, V2]) optval.Value[V1] {
 	if pair.IsSome() {
-		return Some(pair.v1)
+		return optval.Some(pair.v1)
 	}
 
-	return None[V1]()
+	return optval.None[V1]()
 }
 
 // Right returns the right value of the provided pair if it is Some.
 // Otherwise, it returns None.
-func Right[V1, V2 any](pair Pair[V1, V2]) Value[V2] {
+func Right[V1, V2 any](pair Pair[V1, V2]) optval.Value[V2] {
 	if pair.IsSome() {
-		return Some(pair.v2)
+		return optval.Some(pair.v2)
 	}
 
-	return None[V2]()
+	return optval.None[V2]()
 }
 
 // ---
@@ -178,7 +182,7 @@ func (p Pair[V1, V2]) OrElseSome(f func() (V1, V2)) (V1, V2) {
 
 // Reset resets p to NonePair.
 func (p *Pair[V1, V2]) Reset() {
-	*p = NonePair[V1, V2]()
+	*p = None[V1, V2]()
 }
 
 // Take returns a copy of p and resets it to NonePair.
@@ -192,7 +196,7 @@ func (p *Pair[V1, V2]) Take() Pair[V1, V2] {
 // Replace returns a copy of p and resets it to SomePair.
 func (p *Pair[V1, V2]) Replace(v1 V1, v2 V2) Pair[V1, V2] {
 	result := *p
-	*p = SomePair(v1, v2)
+	*p = Some(v1, v2)
 
 	return result
 }

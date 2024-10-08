@@ -1,4 +1,4 @@
-package optional
+package optval
 
 import "iter"
 
@@ -26,8 +26,8 @@ func None[T any]() Value[T] {
 	return Value[T]{}
 }
 
-// ValueByKey returns Some value in case it is found in the provided map by the provided key.
-func ValueByKey[K comparable, V any, M ~map[K]V](key K, m M) Value[V] {
+// ByKey returns Some value in case it is found in the provided map by the provided key.
+func ByKey[K comparable, V any, M ~map[K]V](key K, m M) Value[V] {
 	v, ok := m[key]
 
 	return New(v, ok)
