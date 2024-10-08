@@ -1,13 +1,24 @@
 # Common makefile helpers
 include build/make/common.mk
 
+# Common configuration
+SHELL := $(SHELL) -o pipefail
+
 # Set default goal
 .DEFAULT_GOAL := all
 
-# Populate module list
+# Some constants
+import-path := github.com/pamburus/go-mod
+
+# Populate complete module list, including build tools
+ifndef all-modules
+all-modules := $(shell go list -m -f '{{.Dir}}')
+all-modules := $(all-modules:$(PWD)/%=%)
+endif
+
+# Populate module list to test
 ifndef modules
-modules := $(shell go list -m -f '{{.Dir}}')
-modules := $(modules:$(PWD)/%=%)
+modules := $(filter-out build/tools,$(all-modules))
 endif
 
 ## Run all tests
@@ -45,7 +56,7 @@ test: $(modules:%=test/%)
 ## Run tests for a module
 .PHONY: test/%
 test/%:
-	go test -coverprofile=$*/.cover.out ./$*/... | awk -v str="$(PWD)/" '{gsub(str, ""); print}'
+	go test $(if $(verbose),-v) -coverprofile=$*/.cover.out ./$*/... | go run ./build/tools/test-filter
 
 # ---
 
@@ -56,13 +67,13 @@ coverage: $(modules:%=coverage/%)
 ## Show coverage for a module
 .PHONY: coverage/%
 coverage/%: test/%
-	go tool cover -func=$*/.cover.out | sed 's|^github\.com/pamburus/go-mod/||' | column -t
+	go tool cover -func=$*/.cover.out | go run ./build/tools/coverage-filter ${import-path} | column -t
 
 # ---
 
 ## Tidy up
 .PHONY: tidy
-tidy: $(modules:%=tidy/%)
+tidy: $(all-modules:%=tidy/%)
 	go work sync
 
 ## Tidy up a module
