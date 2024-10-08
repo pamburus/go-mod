@@ -1,2 +1,13 @@
 comment:
   layout: "header, diff, flags"
+
+coverage:
+  status:
+    project:
+      default:
+        target: auto
+        threshold: 1%
+    patch:
+      default:
+        target: auto
+        threshold: 1%
