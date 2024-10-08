@@ -1,6 +1,11 @@
 package optval
 
-import "iter"
+import (
+	"cmp"
+	"iter"
+
+	"github.com/pamburus/go-mod/optional/internal/cmpx"
+)
 
 // ---
 
@@ -114,6 +119,25 @@ func SomeOnly[T any](values iter.Seq[Value[T]]) iter.Seq[T] {
 			}
 		}
 	}
+}
+
+// Compare compares two optional values.
+// Some is considered less than None.
+func Compare[T cmp.Ordered](a, b Value[T]) int {
+	switch {
+	case a.valid != b.valid:
+		return cmpx.IfElse(a.valid, -1, 1)
+	case !a.valid:
+		return 0
+	default:
+		return cmp.Compare(a.inner, b.inner)
+	}
+}
+
+// Less returns true if the first value is less than the second one.
+// Some is considered less than None.
+func Less[T cmp.Ordered](a, b Value[T]) bool {
+	return Compare(a, b) < 0
 }
 
 // ---

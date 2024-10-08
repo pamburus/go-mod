@@ -1,8 +1,10 @@
 package optpair
 
 import (
+	"cmp"
 	"iter"
 
+	"github.com/pamburus/go-mod/optional/internal/cmpx"
 	"github.com/pamburus/go-mod/optional/optval"
 )
 
@@ -80,6 +82,27 @@ func SomeOnly[V1, V2 any](pairs iter.Seq[Pair[V1, V2]]) iter.Seq2[V1, V2] {
 			}
 		}
 	}
+}
+
+// Compare compares two optional values.
+// Some is considered less than None.
+func Compare[V1, V2 cmp.Ordered](a, b Pair[V1, V2]) int {
+	switch {
+	case a.valid != b.valid:
+		return cmpx.IfElse(a.valid, -1, 1)
+	case !a.valid:
+		return 0
+	case a.v1 != b.v1:
+		return cmp.Compare(a.v1, b.v1)
+	default:
+		return cmp.Compare(a.v2, b.v2)
+	}
+}
+
+// Less returns true if the first pair is less than the second one.
+// Some is considered less than None.
+func Less[V1, V2 cmp.Ordered](a, b Pair[V1, V2]) bool {
+	return Compare(a, b) < 0
 }
 
 // IfBoth returns a SomePair containing the inner values of value1 and value2 if both are Some.
