@@ -2,7 +2,7 @@
 .PHONY: help
 help:
 	@ echo "$$(tput setaf 2)Usage$$(tput sgr0)"
-	@ sed -e '/^\.phony:/Id' \
+	@ sed -E '/^\.[a-z_]+:/Id' \
 		${MAKEFILE_LIST} \
 	| sed -n \
 		-e '/^## /{h;s/.*//;:d' \
