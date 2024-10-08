@@ -45,7 +45,7 @@ test: $(modules:%=test/%)
 ## Run tests for a module
 .PHONY: test/%
 test/%:
-	go test -coverprofile=$*/.cover.out ./$*/...
+	go test -coverprofile=$*/.cover.out ./$*/... | awk -v str="$(PWD)/" '{gsub(str, ""); print}'
 
 # ---
 
