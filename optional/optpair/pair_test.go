@@ -9,7 +9,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestNewPair(t *testing.T) {
+func TestNew(t *testing.T) {
 	pair := optpair.New(1, "one", true)
 	v1, v2, ok := pair.Unwrap()
 	assert.True(t, ok)
@@ -20,7 +20,7 @@ func TestNewPair(t *testing.T) {
 	assert.False(t, pair.IsSome())
 }
 
-func TestSomePair(t *testing.T) {
+func TestSome(t *testing.T) {
 	pair := optpair.Some(1, "one")
 	v1, v2, ok := pair.Unwrap()
 	assert.True(t, ok)
@@ -28,12 +28,12 @@ func TestSomePair(t *testing.T) {
 	assert.Equal(t, "one", v2)
 }
 
-func TestNonePair(t *testing.T) {
+func TestNone(t *testing.T) {
 	pair := optpair.None[int, string]()
 	assert.False(t, pair.IsSome())
 }
 
-func TestPairByKey(t *testing.T) {
+func TestByKey(t *testing.T) {
 	m := map[int]string{1: "one", 2: "two"}
 	pair := optpair.ByKey(1, m)
 	v1, v2, ok := pair.Unwrap()
@@ -45,7 +45,7 @@ func TestPairByKey(t *testing.T) {
 	assert.False(t, pair.IsSome())
 }
 
-func TestMapPair(t *testing.T) {
+func TestMap(t *testing.T) {
 	pair := optpair.Some(1, "one")
 	mappedPair := optpair.Map(pair, func(v1 int, v2 string) (string, int) {
 		return v2, v1
@@ -62,7 +62,7 @@ func TestMapPair(t *testing.T) {
 	assert.False(t, mappedPair.IsSome())
 }
 
-func TestFlatMapPair(t *testing.T) {
+func TestFlatMap(t *testing.T) {
 	pair := optpair.Some(1, "one")
 	flatMappedPair := optpair.FlatMap(pair, func(v1 int, v2 string) optpair.Pair[string, int] {
 		return optpair.Some(v2, v1)
@@ -79,7 +79,7 @@ func TestFlatMapPair(t *testing.T) {
 	assert.False(t, flatMappedPair.IsSome())
 }
 
-func TestFilterPair(t *testing.T) {
+func TestFilter(t *testing.T) {
 	pair := optpair.Some(1, "one")
 	filteredPair := optpair.Filter(pair, func(v1 int, _ string) bool {
 		return v1 == 1
@@ -132,7 +132,7 @@ func TestRight(t *testing.T) {
 	assert.False(t, right.IsSome())
 }
 
-func TestPairMethods(t *testing.T) {
+func TestPair(t *testing.T) {
 	pair := optpair.Some(1, "one")
 	assert.True(t, pair.IsSome())
 	assert.False(t, pair.IsNone())
@@ -205,7 +205,7 @@ func TestPairMethods(t *testing.T) {
 	assert.Equal(t, "two", v2)
 }
 
-func TestSomePairOnly(t *testing.T) {
+func TestSomeOnly(t *testing.T) {
 	items := []optpair.Pair[int, string]{
 		optpair.Some(1, "one"),
 		optpair.None[int, string](),
