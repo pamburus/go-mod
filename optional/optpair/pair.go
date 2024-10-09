@@ -32,6 +32,15 @@ func None[V1, V2 any]() Pair[V1, V2] {
 	return Pair[V1, V2]{}
 }
 
+// FromValue converts [optval.Value] to [Pair] using the given function f.
+func FromValue[V, R1, R2 any, F ~func(V) (R1, R2)](value optval.Value[V], f F) Pair[R1, R2] {
+	if v, ok := value.Unwrap(); ok {
+		return Some(f(v))
+	}
+
+	return None[R1, R2]()
+}
+
 // ByKey returns [Some] in case it is found in the provided map by the given key.
 // Otherwise, it returns [None].
 func ByKey[K comparable, V any, M ~map[K]V](key K, m M) Pair[K, V] {

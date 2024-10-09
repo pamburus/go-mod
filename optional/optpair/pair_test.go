@@ -33,6 +33,30 @@ func TestNone(t *testing.T) {
 	assert.False(t, pair.IsSome())
 }
 
+func TestFromValue(t *testing.T) {
+	split := func(v int) (int, bool) {
+		return v, v%2 != 0
+	}
+
+	value := optval.Some(1)
+	pair := optpair.FromValue(value, split)
+	v1, v2, ok := pair.Unwrap()
+	assert.True(t, ok)
+	assert.Equal(t, 1, v1)
+	assert.True(t, v2)
+
+	value = optval.Some(2)
+	pair = optpair.FromValue(value, split)
+	v1, v2, ok = pair.Unwrap()
+	assert.True(t, ok)
+	assert.Equal(t, 2, v1)
+	assert.False(t, v2)
+
+	value = optval.None[int]()
+	pair = optpair.FromValue(value, split)
+	assert.False(t, pair.IsSome())
+}
+
 func TestByKey(t *testing.T) {
 	m := map[int]string{1: "one", 2: "two"}
 	pair := optpair.ByKey(1, m)
