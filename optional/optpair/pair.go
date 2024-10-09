@@ -72,8 +72,8 @@ func Filter[V1, V2 any, F ~func(V1, V2) bool](pair Pair[V1, V2], f F) Pair[V1, V
 	return None[V1, V2]()
 }
 
-// SomeOnly returns a sequence of pairs that contain only [Some] values from the given pairs.
-func SomeOnly[V1, V2 any](pairs iter.Seq[Pair[V1, V2]]) iter.Seq2[V1, V2] {
+// UnwrapFilter returns a sequence of pairs that contain only [Some] values from the given pairs.
+func UnwrapFilter[V1, V2 any](pairs iter.Seq[Pair[V1, V2]]) iter.Seq2[V1, V2] {
 	return func(yield func(V1, V2) bool) {
 		for pair := range pairs {
 			if v1, v2, ok := pair.Unwrap(); ok {
