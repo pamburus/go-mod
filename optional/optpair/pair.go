@@ -167,6 +167,15 @@ func Right[V1, V2 any](pair Pair[V1, V2]) optval.Value[V2] {
 	return optval.None[V2]()
 }
 
+// Swap returns a new pair with swapped inner values.
+func Swap[V1, V2 any](pair Pair[V1, V2]) Pair[V2, V1] {
+	if pair.IsSome() {
+		return Some(pair.v2, pair.v1)
+	}
+
+	return None[V2, V1]()
+}
+
 // ---
 
 // Pair represents an optional pair of values of types V1 and V2.
