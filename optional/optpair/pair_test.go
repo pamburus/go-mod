@@ -198,6 +198,19 @@ func TestRight(t *testing.T) {
 	assert.False(t, right.IsSome())
 }
 
+func TestSwap(t *testing.T) {
+	pair := optpair.Some(1, "one")
+	swappedPair := optpair.Swap(pair)
+	v1, v2, ok := swappedPair.Unwrap()
+	assert.True(t, ok)
+	assert.Equal(t, "one", v1)
+	assert.Equal(t, 1, v2)
+
+	pair = optpair.None[int, string]()
+	swappedPair = optpair.Swap(pair)
+	assert.False(t, swappedPair.IsSome())
+}
+
 func TestPair(t *testing.T) {
 	pair := optpair.Some(1, "one")
 	assert.True(t, pair.IsSome())
