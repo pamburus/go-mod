@@ -3,6 +3,11 @@
 A collection of useful go modules.
 
 ## Modules
+
+- [gi](gi/README.md)
+
+    Provides helpers for generic iterators.
+
 - [optional](optional/README.md)
 
     Provides provides a way to represent optional values in Go.

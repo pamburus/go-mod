@@ -13,7 +13,7 @@ env:
 
 jobs:
   detect-modules:
-    name: Detect go modules
+    name: 'Detect go modules'
     runs-on: ubuntu-latest
     outputs:
       modules: ${{ steps.set-modules.outputs.modules }}
@@ -27,7 +27,7 @@ jobs:
         run: echo "modules=$(go work edit -json | jq -c -r '[.Use[].DiskPath | sub("^\\./"; "")] | del(.[] | select(. == "build/tools"))')" >> $GITHUB_OUTPUT
 
   lint:
-    name: Run golangci-lint
+    name: 'Run golangci-lint'
     needs: detect-modules
     runs-on: ubuntu-latest
     strategy:
@@ -39,7 +39,7 @@ jobs:
         with:
           go-version: ${{ env.GO_VERSION }}
           cache-dependency-path: "**/*.sum"
-      - name: golangci-lint ${{ matrix.module }}
+      - name: 'Run golangci-lint for module "${{ matrix.module }}"'
         uses: golangci/golangci-lint-action@v6
         with:
           version: ${{ env.GOLANGCI_LINT_VERSION }}
@@ -58,20 +58,17 @@ jobs:
         with:
           go-version: ${{ env.GO_VERSION }}
           cache-dependency-path: "**/*.sum"
-      - name: Test
+      - name: 'Run go test for module "${{ matrix.module }}"'
         run: go test -race -coverprofile=.cover.out ./...
         working-directory: ${{ matrix.module }}
-      - name: Upload coverage to codecov.io
+      - name: 'Upload coverage to codecov.io'
         uses: codecov/codecov-action@v4
         with:
           files: ${{ matrix.module }}/.cover.out
           flags: ${{ matrix.module }}
         env: 
           CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
-      - name: List files
-        run: ls -lah
-        working-directory: ${{ matrix.module }}
-      - name: Collect to coveralls
+      - name: 'Send coverage to coveralls.io collector'
         uses: coverallsapp/github-action@v2
         with:
           parallel: true
@@ -80,12 +77,12 @@ jobs:
           git-branch: ${{ github.ref_name }}
 
   complete:
-    name: Complete
+    name: 'Complete'
     runs-on: ubuntu-latest
     needs: [lint, test, detect-modules]
     if: ${{ always() }}
     steps:
-      - name: Check if all jobs passed
+      - name: 'Check if all jobs passed'
         run: |
           needs_json='${{ toJSON(needs) }}'
           job_names=$(echo "$needs_json" | jq -r 'keys[]')
@@ -102,7 +99,7 @@ jobs:
           else
             echo "All jobs passed."
           fi
-      - name: Upload coverage to coveralls
+      - name: 'Upload coverage to coveralls.io'
         uses: coverallsapp/github-action@v2
         with:
           parallel-finished: true

@@ -60,8 +60,9 @@ issues:
       linters:
         - dupl
         - gosec
-        - unparam
         - nlreturn
+        - prealloc
+        - unparam
     - text: ^G302|^G304|^G601
       linters:
         - gosec
@@ -71,3 +72,10 @@ issues:
     - text: ^singleCaseSwitch|^regexpMust
       linters:
         - gocritic
+    - path: '^gi/giop/(min|max)\.go$'
+      linters:
+        - dupl
+    - path: '^gi/(min|max)\.go$'
+      linters:
+        - dupl
+      
