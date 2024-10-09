@@ -7,14 +7,14 @@ import (
 
 var styleSettings = []styling.Setting{
 	styling.NewSetting(
-		`^--- PASS: .* \(\d+\.\d+s\)$`,
+		`^\s*--- PASS: .* \(\d+\.\d+s\)$`,
 		styling.NewStyle(
 			styling.NewSequence(sgr.SetForegroundColor(sgr.Green)),
 			styling.NewSequence(sgr.ResetAll),
 		),
 	),
 	styling.NewSetting(
-		`^--- FAIL: .* \(\d+\.\d+s\)$`,
+		`^\s*--- FAIL: .* \(\d+\.\d+s\)$`,
 		styling.NewStyle(
 			styling.NewSequence(sgr.SetForegroundColor(sgr.BrightRed)),
 			styling.NewSequence(sgr.ResetAll),
