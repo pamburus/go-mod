@@ -247,7 +247,7 @@ func TestPair(t *testing.T) {
 	assert.Equal(t, "two", v2)
 }
 
-func TestSomeOnly(t *testing.T) {
+func TestUnwrapFilter(t *testing.T) {
 	items := []optpair.Pair[int, string]{
 		optpair.Some(1, "one"),
 		optpair.None[int, string](),
@@ -258,7 +258,7 @@ func TestSomeOnly(t *testing.T) {
 	values := slices.Values(items)
 
 	collected := map[int]string{}
-	optpair.SomeOnly(values)(func(k int, v string) bool {
+	optpair.UnwrapFilter(values)(func(k int, v string) bool {
 		collected[k] = v
 		return true
 	})
@@ -266,7 +266,7 @@ func TestSomeOnly(t *testing.T) {
 	assert.Equal(t, map[int]string{1: "one", 2: "two", 3: "three"}, collected)
 
 	clear(collected)
-	optpair.SomeOnly(values)(func(k int, v string) bool {
+	optpair.UnwrapFilter(values)(func(k int, v string) bool {
 		collected[k] = v
 		return k%2 != 0
 	})

@@ -209,7 +209,7 @@ func TestFlatten(t *testing.T) {
 	assert.True(t, u.IsNone())
 }
 
-func TestSomeOnly(t *testing.T) {
+func TestUnwrapFilter(t *testing.T) {
 	items := []optval.Value[int]{
 		optval.Some(1),
 		optval.None[int](),
@@ -220,7 +220,7 @@ func TestSomeOnly(t *testing.T) {
 	values := slices.Values(items)
 
 	collected := []int{}
-	optval.SomeOnly(values)(func(v int) bool {
+	optval.UnwrapFilter(values)(func(v int) bool {
 		collected = append(collected, v)
 		return true
 	})
@@ -228,7 +228,7 @@ func TestSomeOnly(t *testing.T) {
 	assert.Equal(t, []int{1, 2, 3}, collected)
 
 	collected = collected[:0]
-	optval.SomeOnly(values)(func(v int) bool {
+	optval.UnwrapFilter(values)(func(v int) bool {
 		collected = append(collected, v)
 		return v%2 != 0
 	})
