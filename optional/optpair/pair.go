@@ -118,6 +118,26 @@ func JoinAnd[V1, V2 any](v1 optval.Value[V1], v2 optval.Value[V2]) Pair[V1, V2] 
 	return None[V1, V2]()
 }
 
+// JoinOr returns a [Some] pair containing the inner values of v1 and v2 if at least one of them is [optval.Some].
+// Otherwise, it returns [None].
+// If some of the values are [None], they are replaced with zero values.
+func JoinOr[V1, V2 any](v1 optval.Value[V1], v2 optval.Value[V2]) Pair[V1, V2] {
+	if v1, ok := v1.Unwrap(); ok {
+		return Some(v1, v2.OrZero())
+	}
+
+	if v2, ok := v2.Unwrap(); ok {
+		return Some(v1.OrZero(), v2)
+	}
+
+	return None[V1, V2]()
+}
+
+// Split returns the inner values of the given pair as [optval.Value]s.
+func Split[V1, V2 any](pair Pair[V1, V2]) (optval.Value[V1], optval.Value[V2]) {
+	return Left(pair), Right(pair)
+}
+
 // Left returns the left value of the given pair if it is [Some].
 // Otherwise, it returns [None].
 func Left[V1, V2 any](pair Pair[V1, V2]) optval.Value[V1] {

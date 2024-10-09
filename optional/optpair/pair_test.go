@@ -106,6 +106,48 @@ func TestJoinAnd(t *testing.T) {
 	assert.False(t, pair.IsSome())
 }
 
+func TestJoinOr(t *testing.T) {
+	value1 := optval.Some(1)
+	value2 := optval.Some("one")
+	pair := optpair.JoinOr(value1, value2)
+	v1, v2, ok := pair.Unwrap()
+	assert.True(t, ok)
+	assert.Equal(t, 1, v1)
+	assert.Equal(t, "one", v2)
+
+	value1 = optval.None[int]()
+	pair = optpair.JoinOr(value1, value2)
+	v1, v2, ok = pair.Unwrap()
+	assert.True(t, ok)
+	assert.Equal(t, 0, v1)
+	assert.Equal(t, "one", v2)
+
+	value1 = optval.None[int]()
+	value2 = optval.None[string]()
+	pair = optpair.JoinOr(value1, value2)
+	assert.False(t, pair.IsSome())
+}
+
+func TestSplit(t *testing.T) {
+	pair := optpair.Some(1, "one")
+	value1, value2 := optpair.Split(pair)
+	assert.True(t, value1.IsSome())
+	assert.True(t, value2.IsSome())
+
+	v1, ok := value1.Unwrap()
+	assert.True(t, ok)
+	assert.Equal(t, 1, v1)
+
+	v2, ok := value2.Unwrap()
+	assert.True(t, ok)
+	assert.Equal(t, "one", v2)
+
+	pair = optpair.None[int, string]()
+	value1, value2 = optpair.Split(pair)
+	assert.False(t, value1.IsSome())
+	assert.False(t, value2.IsSome())
+}
+
 func TestLeft(t *testing.T) {
 	pair := optpair.Some(1, "one")
 	left := optpair.Left(pair)
