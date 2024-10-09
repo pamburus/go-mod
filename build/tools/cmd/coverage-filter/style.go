@@ -7,7 +7,7 @@ import (
 
 var styleSettings = []styling.Setting{
 	styling.NewSetting(
-		`\b100\.0\%$`,
+		`\b100\.0%$`,
 		styling.NewStyle(
 			styling.NewSequence(sgr.SetForegroundColor(sgr.Blue)),
 			styling.NewSequence(sgr.ResetAll),
