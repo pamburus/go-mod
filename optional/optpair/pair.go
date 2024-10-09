@@ -106,9 +106,9 @@ func Less[V1, V2 cmp.Ordered](a, b Pair[V1, V2]) bool {
 	return Compare(a, b) < 0
 }
 
-// IfBoth returns [Some] pair containing the inner values of value1 and value2 if both are [optval.Some].
+// JoinAnd returns a [Some] pair containing the inner values of v1 and v2 if they are both [optval.Some].
 // Otherwise, it returns [None].
-func IfBoth[V1, V2 any](v1 optval.Value[V1], v2 optval.Value[V2]) Pair[V1, V2] {
+func JoinAnd[V1, V2 any](v1 optval.Value[V1], v2 optval.Value[V2]) Pair[V1, V2] {
 	if v1, ok := v1.Unwrap(); ok {
 		if v2, ok := v2.Unwrap(); ok {
 			return Some(v1, v2)
