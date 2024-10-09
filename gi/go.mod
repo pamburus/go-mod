@@ -3,7 +3,7 @@ module github.com/pamburus/go-mod/gi
 go 1.23.1
 
 require (
-	github.com/pamburus/go-mod/optional v0.2.0
+	github.com/pamburus/go-mod/optional v0.2.1
 	github.com/stretchr/testify v1.9.0
 	golang.org/x/exp v0.0.0-20241009180824-f66d83c29e7c
 )
