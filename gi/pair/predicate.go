@@ -88,3 +88,16 @@ func Or[V1, V2 any, P Predicate[V1, V2]](predicates ...P) P {
 		return false
 	}
 }
+
+// IsZero returns true if both values are zero.
+func IsZero[V1, V2 comparable](v1 V1, v2 V2) bool {
+	var z1 V1
+	var z2 V2
+
+	return v1 == z1 && v2 == z2
+}
+
+// IsNotZero returns true if any of the values is not zero.
+func IsNotZero[V1, V2 comparable](v1 V1, v2 V2) bool {
+	return !IsZero(v1, v2)
+}

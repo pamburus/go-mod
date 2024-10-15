@@ -111,3 +111,15 @@ func In[T comparable, TT ~[]T](values TT) func(T) bool {
 func OneOf[T comparable](values ...T) func(T) bool {
 	return In(values)
 }
+
+// IsZero returns true if the value is equal to the zero value of its type.
+func IsZero[T comparable](value T) bool {
+	var zero T
+
+	return value == zero
+}
+
+// IsNotZero returns true if the value is not equal to the zero value of its type.
+func IsNotZero[T comparable](value T) bool {
+	return !IsZero(value)
+}

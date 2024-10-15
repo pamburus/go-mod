@@ -101,3 +101,15 @@ func TestOneOf(t *testing.T) {
 	assert.Equal(t, optval.Some(3), gi.Find(values, gi.OneOf(5, 4, 3)))
 	assert.Equal(t, optval.None[int](), gi.Find(values, gi.OneOf(0, 8, -1)))
 }
+
+func TestIsZero(t *testing.T) {
+	values := slices.Values([]int{1, 2, 3, 0, 4, 5, 6})
+	assert.Equal(t, optval.Some(0), gi.Find(values, gi.IsZero))
+	assert.Equal(t, optval.Some(1), gi.Find(values, gi.Not[int](gi.IsZero)))
+}
+
+func TestIsNotZero(t *testing.T) {
+	values := slices.Values([]int{1, 2, 3, 0, 4, 5, 6})
+	assert.Equal(t, optval.Some(1), gi.Find(values, gi.IsNotZero))
+	assert.Equal(t, optval.Some(0), gi.Find(values, gi.Not[int](gi.IsNotZero)))
+}
