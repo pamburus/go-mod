@@ -142,7 +142,7 @@ type binaryCondition struct {
 }
 
 func (bc binaryCondition) BuildCondition(b Builder) error {
-	err := bc.left.BuildExpression(b)
+	err := bc.left.Build(b, DefaultExpressionOptions())
 	if err != nil {
 		return err
 	}
@@ -151,7 +151,7 @@ func (bc binaryCondition) BuildCondition(b Builder) error {
 	b.AppendString(bc.op)
 	b.AppendByte(' ')
 
-	err = bc.right.BuildExpression(b)
+	err = bc.right.Build(b, DefaultExpressionOptions())
 	if err != nil {
 		return err
 	}
