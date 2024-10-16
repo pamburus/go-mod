@@ -2,18 +2,8 @@ package qb
 
 import "errors"
 
-func Select(what ...Expression) SelectWhat {
-	return SelectWhat{what}
-}
-
-// ---
-
-type SelectWhat struct {
-	what []Expression
-}
-
-func (s SelectWhat) From(items ...FromItem) SelectStatement {
-	return SelectStatement{what: s.what, from: items}
+func Select(what ...Expression) SelectStatement {
+	return SelectStatement{what: what}
 }
 
 // ---
@@ -83,20 +73,17 @@ func (s SelectStatement) BuildStatement(b Builder, _ StatementOptions) error {
 		return errors.New("no FROM items")
 	}
 
-	b.AppendString("SELECT ")
+	b.AppendString("SELECT")
 
-	if len(s.what) == 0 {
-		b.AppendString("*")
-	} else {
-		for i, item := range s.what {
-			if i > 0 {
-				b.AppendString(", ")
-			}
+	for i, item := range s.what {
+		if i > 0 {
+			b.AppendByte(',')
+		}
+		b.AppendByte(' ')
 
-			err := item.BuildExpression(b, optSelectWhat)
-			if err != nil {
-				return err
-			}
+		err := item.BuildExpression(b, optSelectWhat)
+		if err != nil {
+			return err
 		}
 	}
 
