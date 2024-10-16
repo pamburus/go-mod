@@ -7,7 +7,7 @@ type Expression interface {
 
 type ExpressionOptions interface {
 	AliasOptions
-	sealed()
+	sealedExpressionOptions()
 }
 
 // ---
@@ -20,18 +20,10 @@ func DefaultExpressionOptions() ExpressionOptions {
 
 var defaultExpressionOptionsInstance = &defaultExpressionOptions{}
 
-type defaultExpressionOptions struct{}
-
-func (*defaultExpressionOptions) AliasApplicable() bool {
-	return false
-}
-
-func (*defaultExpressionOptions) sealed() {}
-
 // ---
 
-type aliasedExpression as
-
-func (a aliasedExpression) BuildExpression(b Builder) error {
-	return as(a).build(b)
+type defaultExpressionOptions struct {
+	defaultAliasOptions
 }
+
+func (*defaultExpressionOptions) sealedExpressionOptions() {}

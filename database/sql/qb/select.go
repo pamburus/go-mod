@@ -52,7 +52,7 @@ func (s SelectStatement) Limit(n int) SelectStatement {
 	return s
 }
 
-func (s SelectStatement) BuildStatement(b Builder) error {
+func (s SelectStatement) Build(b Builder, _ StatementOptions) error {
 	if len(s.from) == 0 {
 		return errors.New("no FROM items")
 	}
@@ -67,7 +67,7 @@ func (s SelectStatement) BuildStatement(b Builder) error {
 				b.AppendString(", ")
 			}
 
-			err := item.Build(b, selectWhatOptionsInstance)
+			err := item.Build(b, optSelectWhat)
 			if err != nil {
 				return err
 			}
@@ -112,7 +112,8 @@ func (s SelectStatement) BuildStatement(b Builder) error {
 
 // ---
 
-var selectWhatOptionsInstance = &selectWhatOptions{}
+var optSelectWhat = &selectWhatOptions{}
+var _ Statement = SelectStatement{}
 
 // ---
 
