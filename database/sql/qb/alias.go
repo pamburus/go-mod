@@ -2,6 +2,11 @@ package qb
 
 type AliasOptions interface {
 	AliasApplicable() bool
+	sealedAliasOptions()
+}
+
+func DefaultAliasOptions() AliasOptions {
+	return defaultAliasOptionsInstance
 }
 
 // ---
@@ -25,3 +30,17 @@ func (a as) build(b Builder) error {
 
 	return nil
 }
+
+// ---
+
+var defaultAliasOptionsInstance = &defaultAliasOptions{}
+
+// ---
+
+type defaultAliasOptions struct{}
+
+func (*defaultAliasOptions) AliasApplicable() bool {
+	return false
+}
+
+func (*defaultAliasOptions) sealedAliasOptions() {}
