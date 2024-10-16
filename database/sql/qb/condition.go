@@ -8,7 +8,17 @@ import (
 
 // Condition is an abstract SQL condition.
 type Condition interface {
-	BuildCondition(Builder) error
+	BuildCondition(Builder, ConditionOptions) error
+}
+
+type ConditionOptions interface {
+	sealedConditionOptions()
+}
+
+// ---
+
+func DefaultConditionOptions() ConditionOptions {
+	return defaultConditionOptionsInstance
 }
 
 // ---
@@ -81,14 +91,14 @@ type and struct {
 	conditions []Condition
 }
 
-func (a and) BuildCondition(b Builder) error {
+func (a and) BuildCondition(b Builder, options ConditionOptions) error {
 	b.AppendByte('(')
 	for i, condition := range a.conditions {
 		if i > 0 {
 			b.AppendString(" AND ")
 		}
 
-		err := condition.BuildCondition(b)
+		err := condition.BuildCondition(b, options)
 		if err != nil {
 			return err
 		}
@@ -104,14 +114,14 @@ type or struct {
 	conditions []Condition
 }
 
-func (o or) BuildCondition(b Builder) error {
+func (o or) BuildCondition(b Builder, options ConditionOptions) error {
 	b.AppendByte('(')
 	for i, condition := range o.conditions {
 		if i > 0 {
 			b.AppendString(" OR ")
 		}
 
-		err := condition.BuildCondition(b)
+		err := condition.BuildCondition(b, options)
 		if err != nil {
 			return err
 		}
@@ -127,10 +137,10 @@ type not struct {
 	condition Condition
 }
 
-func (n not) BuildCondition(b Builder) error {
+func (n not) BuildCondition(b Builder, options ConditionOptions) error {
 	b.AppendString("NOT ")
 
-	return n.condition.BuildCondition(b)
+	return n.condition.BuildCondition(b, options)
 }
 
 // ---
@@ -141,8 +151,8 @@ type binaryCondition struct {
 	right Expression
 }
 
-func (bc binaryCondition) BuildCondition(b Builder) error {
-	err := bc.left.Build(b, DefaultExpressionOptions())
+func (bc binaryCondition) BuildCondition(b Builder, _ ConditionOptions) error {
+	err := bc.left.BuildExpression(b, DefaultExpressionOptions())
 	if err != nil {
 		return err
 	}
@@ -151,7 +161,7 @@ func (bc binaryCondition) BuildCondition(b Builder) error {
 	b.AppendString(bc.op)
 	b.AppendByte(' ')
 
-	err = bc.right.Build(b, DefaultExpressionOptions())
+	err = bc.right.BuildExpression(b, DefaultExpressionOptions())
 	if err != nil {
 		return err
 	}
@@ -167,3 +177,13 @@ func cleanupConditions(conditions []Condition) []Condition {
 		gi.Filter(slices.Values(conditions), gi.IsNotZero),
 	)
 }
+
+// ---
+
+var defaultConditionOptionsInstance = &defaultConditionOptions{}
+
+// ---
+
+type defaultConditionOptions struct{}
+
+func (*defaultConditionOptions) sealedConditionOptions() {}
