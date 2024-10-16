@@ -140,3 +140,31 @@ func TestOr(t *testing.T) {
 		assert.Equal(t, optpair.None[int, int](), result)
 	})
 }
+
+func TestIsZero(t *testing.T) {
+	t.Run("SomeIsZero", func(t *testing.T) {
+		pairs := slices.All([]int{0, 20, 30, 40, 50, 60})
+		result := gi.FindPair(pairs, pair.IsZero)
+		assert.Equal(t, optpair.Some(0, 0), result)
+	})
+
+	t.Run("NoneIsZero", func(t *testing.T) {
+		pairs := slices.All([]int{10, 20, 30, 40, 50, 60})
+		result := gi.FindPair(pairs, pair.IsZero)
+		assert.Equal(t, optpair.None[int, int](), result)
+	})
+}
+
+func TestIsNotZero(t *testing.T) {
+	t.Run("SomeIsNotZero", func(t *testing.T) {
+		pairs := slices.All([]int{0, 20, 30, 40, 50, 60})
+		result := gi.FindPair(pairs, pair.IsNotZero)
+		assert.Equal(t, optpair.Some(1, 20), result)
+	})
+
+	t.Run("NoneIsNotZero", func(t *testing.T) {
+		pairs := slices.All([]int{0})
+		result := gi.FindPair(pairs, pair.IsNotZero)
+		assert.Equal(t, optpair.None[int, int](), result)
+	})
+}
