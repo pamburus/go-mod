@@ -50,7 +50,7 @@ func (o order) Build(b Builder) error {
 			b.AppendString(", ")
 		}
 
-		err := item.expr.Build(b, DefaultExpressionOptions())
+		err := item.expr.BuildExpression(b, DefaultExpressionOptions())
 		if err != nil {
 			return err
 		}

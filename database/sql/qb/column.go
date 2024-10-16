@@ -1,33 +1,33 @@
 package qb
 
-func Column(name string) ColumnBuilder {
-	return ColumnBuilder{name: name}
+func Column(name string) ColumnRef {
+	return ColumnRef{name: name}
 }
 
 // ---
 
-type ColumnBuilder struct {
+type ColumnRef struct {
 	name  string
-	table TableBuilder
+	table TableRef
 	alias string
 }
 
-func (c ColumnBuilder) Table(name string) ColumnBuilder {
+func (c ColumnRef) Table(name string) ColumnRef {
 	c.table = Table(name)
 
 	return c
 }
 
-func (c ColumnBuilder) As(alias string) ColumnBuilder {
+func (c ColumnRef) As(alias string) ColumnRef {
 	c.alias = alias
 
 	return c
 }
 
-func (c ColumnBuilder) Build(b Builder, options ExpressionOptions) error {
+func (c ColumnRef) BuildExpression(b Builder, options ExpressionOptions) error {
 	build := func(b Builder) error {
 		if c.table.name != "" {
-			c.table.BuildFromItem(b)
+			c.table.BuildFromItem(b, DefaultFromItemOptions())
 			b.AppendByte('.')
 		}
 
@@ -41,4 +41,4 @@ func (c ColumnBuilder) Build(b Builder, options ExpressionOptions) error {
 
 // ---
 
-var _ Expression = ColumnBuilder{}
+var _ Expression = ColumnRef{}

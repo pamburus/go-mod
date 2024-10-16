@@ -2,7 +2,7 @@ package qb
 
 // Expression is an abstract SQL expression.
 type Expression interface {
-	Build(Builder, ExpressionOptions) error
+	BuildExpression(Builder, ExpressionOptions) error
 }
 
 type ExpressionOptions interface {

@@ -17,7 +17,7 @@ func (v ValueExpression) As(alias string) ValueExpression {
 	return v
 }
 
-func (v ValueExpression) Build(b Builder, options ExpressionOptions) error {
+func (v ValueExpression) BuildExpression(b Builder, options ExpressionOptions) error {
 	build := func(b Builder) error {
 		b.AppendArg(v.val)
 

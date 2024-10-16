@@ -12,16 +12,11 @@ type Builder interface {
 	AppendArg(any)
 }
 
-// FromItem is an abstract SQL from item.
-type FromItem interface {
-	BuildFromItem(Builder) error
-}
-
 // Build builds the SQL query.
 func Build(q Statement) (string, []any, error) {
 	var b StandardBuilder
 
-	err := q.Build(&b, DefaultStatementOptions())
+	err := q.BuildStatement(&b, DefaultStatementOptions())
 	if err != nil {
 		return "", nil, err
 	}
