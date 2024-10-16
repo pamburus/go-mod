@@ -1,39 +1,47 @@
 package qb
 
 func Raw(sql string, args ...any) RawExpression {
-	return RawExpression{sql, args}
+	return RawExpression{sql: sql, args: args}
 }
 
 // ---
 
 type RawExpression struct {
-	sql  string
-	args []any
+	sql   string
+	args  []any
+	alias string
 }
 
-func (r RawExpression) BuildExpression(b Builder, _ ExpressionOptions) error {
-	return r.build(b)
+func (r RawExpression) As(alias string) RawExpression {
+	r.alias = alias
+
+	return r
 }
 
-func (r RawExpression) BuildCondition(b Builder, _ ConditionOptions) error {
-	return r.build(b)
+func (r RawExpression) BuildExpression(b Builder, options ExpressionOptions) error {
+	return r.build(b, options)
 }
 
-func (r RawExpression) BuildFromItem(b Builder, _ FromItemOptions) error {
-	return r.build(b)
+func (r RawExpression) BuildCondition(b Builder, options ConditionOptions) error {
+	return r.build(b, DefaultAliasOptions())
 }
 
-func (r RawExpression) BuildStatement(b Builder, _ StatementOptions) error {
-	return r.build(b)
+func (r RawExpression) BuildFromItem(b Builder, options FromItemOptions) error {
+	return r.build(b, options)
 }
 
-func (r RawExpression) build(b Builder) error {
-	b.AppendString(r.sql)
-	for _, arg := range r.args {
-		b.AppendArg(arg)
+func (r RawExpression) BuildStatement(b Builder, options StatementOptions) error {
+	return r.build(b, DefaultAliasOptions())
+}
+
+func (r RawExpression) build(b Builder, options AliasOptions) error {
+	build := func(b Builder) error {
+		b.AppendString(r.sql)
+
+		return b.AppendRawArgs(r.args...)
 	}
 
-	return nil
+	return as{build, r.alias, options}.build(b)
 }
 
 // ---

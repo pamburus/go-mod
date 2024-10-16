@@ -2,7 +2,8 @@ go 1.23.1
 
 use (
 	./build/tools
+	./database/sql/qb
 	./gi
 	./optional
-	./database/sql/qb
+	./test/database/psql
 )

@@ -3,7 +3,9 @@ package qb_test
 import (
 	"testing"
 
+	"github.com/jackc/pgx/v5"
 	"github.com/pamburus/go-mod/database/sql/qb"
+	"github.com/pamburus/go-mod/database/sql/qb/qbpgx"
 	"github.com/stretchr/testify/require"
 )
 
@@ -16,14 +18,15 @@ func TestSelect(t *testing.T) {
 		From(qb.Table("user")).
 		Where(qb.Equal(
 			qb.Column("id"),
-			qb.Value(1),
+			qb.Arg(1),
 		)).
 		Limit(3)
 
-	sql, args, err := qb.Build(q)
+	builder := qbpgx.NewBuilder
+	sql, args, err := qb.Build(builder, q)
 	require.NoError(t, err)
-	require.Equal(t, `SELECT id, name AS alias FROM user WHERE id = ? LIMIT ?`, sql)
-	require.Equal(t, []any{1, 3}, args)
+	require.Equal(t, `SELECT id, name AS alias FROM user WHERE id = $1 LIMIT 3`, sql)
+	require.Equal(t, []any{1}, args)
 }
 
 func TestSelectSubquery(t *testing.T) {
@@ -37,12 +40,13 @@ func TestSelectSubquery(t *testing.T) {
 		).
 		Where(qb.Equal(
 			qb.Column("id"),
-			qb.Value(1),
+			qb.NamedArg("id1", 1),
 		)).
 		Limit(3)
 
-	sql, args, err := qb.Build(q)
+	builder := qbpgx.NewBuilder
+	sql, args, err := qb.Build(builder, q)
 	require.NoError(t, err)
-	require.Equal(t, `SELECT id, name AS alias FROM (SELECT * FROM user) AS _sq1 WHERE id = ? LIMIT ?`, sql)
-	require.Equal(t, []any{1, 3}, args)
+	require.Equal(t, `SELECT id, name AS alias FROM (SELECT * FROM user) AS _sq1 WHERE id = @id1 LIMIT 3`, sql)
+	require.Equal(t, []any{pgx.StrictNamedArgs{"id1": 1}}, args)
 }
