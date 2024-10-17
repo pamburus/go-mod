@@ -23,7 +23,7 @@ func TestFlattenBy(t *testing.T) {
 		collected := slices.Collect(helpers.FlattenPairs(result))
 		assert.Equal(t, []int{0, 1, 1, 2, 0, 3, 1, 4, 0, 5, 1, 6}, collected)
 
-		collected = slices.Collect(helpers.Limit(helpers.FlattenPairs(result), 3))
+		collected = slices.Collect(helpers.Limit(3, helpers.FlattenPairs(result)))
 		assert.Equal(t, []int{0, 1, 1}, collected)
 	})
 }

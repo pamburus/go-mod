@@ -22,7 +22,7 @@ func TestPairFold(t *testing.T) {
 		assert.Equal(t, expected, result)
 
 		expected = []int{2, 5}
-		result = slices.Collect(helpers.Limit(folded, 2))
+		result = slices.Collect(helpers.Limit(2, folded))
 		assert.Equal(t, expected, result)
 	})
 }
@@ -42,7 +42,7 @@ func TestPairUnfold(t *testing.T) {
 		assert.Equal(t, expected, result)
 
 		expected = []int{1, 0, 1, 1}
-		result = slices.Collect(helpers.Limit(helpers.FlattenPairs(unfolded), 4))
+		result = slices.Collect(helpers.Limit(4, helpers.FlattenPairs(unfolded)))
 		assert.Equal(t, expected, result)
 	})
 }
@@ -58,7 +58,7 @@ func TestPairSwap(t *testing.T) {
 		assert.Equal(t, expected, result)
 
 		expected = []int{1, 0}
-		result = slices.Collect(helpers.Limit(helpers.FlattenPairs(swapped), 2))
+		result = slices.Collect(helpers.Limit(2, helpers.FlattenPairs(swapped)))
 		assert.Equal(t, expected, result)
 	})
 }
