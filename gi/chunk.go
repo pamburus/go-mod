@@ -1,9 +1,13 @@
 package gi
 
-import "iter"
+import (
+	"iter"
+
+	"github.com/pamburus/go-mod/gi/constraints"
+)
 
 // Chunk returns an iterator that yields chunks of size elements from the given values.
-func Chunk[V any](values iter.Seq[V], size int) iter.Seq[iter.Seq[V]] {
+func Chunk[V any, I constraints.Integer](values iter.Seq[V], size I) iter.Seq[iter.Seq[V]] {
 	if size <= 0 {
 		panic("chunk size must be greater than zero")
 	}
@@ -14,7 +18,7 @@ func Chunk[V any](values iter.Seq[V], size int) iter.Seq[iter.Seq[V]] {
 
 		var v V
 		hasMore := true
-		i := 1
+		i := I(1)
 
 		for hasMore {
 			if i > 0 {
@@ -45,24 +49,6 @@ func Chunk[V any](values iter.Seq[V], size int) iter.Seq[iter.Seq[V]] {
 			}
 		}
 	}
-}
-
-// ChunkPairs returns an iterator that yields chunks of pairs of given size.
-func ChunkPairs[V1, V2 any](pairs iter.Seq2[V1, V2], size int) iter.Seq[iter.Seq2[V1, V2]] {
-	type pair struct {
-		v1 V1
-		v2 V2
-	}
-
-	fold := PairFoldFunc(func(v1 V1, v2 V2) pair {
-		return pair{v1, v2}
-	})
-
-	unfold := PairUnfoldFunc(func(p pair) (V1, V2) {
-		return p.v1, p.v2
-	})
-
-	return Map(Chunk(fold(pairs), size), unfold)
 }
 
 // ChunkToSlices returns a new iterator that yields slices of size elements from the given values.

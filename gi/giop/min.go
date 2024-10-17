@@ -1,10 +1,6 @@
 package giop
 
-import (
-	"golang.org/x/exp/constraints"
-
-	"github.com/pamburus/go-mod/gi/gic"
-)
+import "github.com/pamburus/go-mod/gi/constraints"
 
 // Min returns the minimum value of the left and right.
 func Min[T constraints.Ordered](left, right T) T {
@@ -24,7 +20,7 @@ func MinBy[T any, K constraints.Ordered, Key ~func(T) K](key Key) func(T, T) T {
 }
 
 // MinByLess returns the minimum value of the left and right using Less method for comparison.
-func MinByLess[T gic.OrderedByLess[T]](left, right T) T {
+func MinByLess[T constraints.OrderedByLess[T]](left, right T) T {
 	return MinByLessFunc(T.Less)(left, right)
 }
 
@@ -41,7 +37,7 @@ func MinByLessFunc[T any, F ~func(T, T) bool](less F) func(left, right T) T {
 }
 
 // MinByCompare returns the minimum value of the left and right using Compare method for comparison.
-func MinByCompare[T gic.OrderedByCompare[T]](left, right T) T {
+func MinByCompare[T constraints.OrderedByCompare[T]](left, right T) T {
 	return MinByCompareFunc(T.Compare)(left, right)
 }
 

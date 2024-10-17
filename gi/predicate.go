@@ -3,9 +3,7 @@ package gi
 import (
 	"slices"
 
-	"golang.org/x/exp/constraints"
-
-	"github.com/pamburus/go-mod/gi/gic"
+	"github.com/pamburus/go-mod/gi/constraints"
 )
 
 // Equal returns a predicate that returns true in case its argument is equal to the value.
@@ -66,7 +64,7 @@ func DivisibleBy[T constraints.Integer](divisor T) func(value T) bool {
 }
 
 // Not returns a predicate that returns negated value of the given predicate.
-func Not[T any, P gic.Predicate[T]](predicate P) P {
+func Not[T any, P constraints.Predicate[T]](predicate P) P {
 	return func(value T) bool {
 		return !predicate(value)
 	}
@@ -74,7 +72,7 @@ func Not[T any, P gic.Predicate[T]](predicate P) P {
 
 // And returns a predicate that returns true only in case all of the given predicates return true.
 // And returns true if there are no given predicates.
-func And[T any, P gic.Predicate[T]](predicates ...P) P {
+func And[T any, P constraints.Predicate[T]](predicates ...P) P {
 	return func(value T) bool {
 		for _, predicate := range predicates {
 			if !predicate(value) {
@@ -88,7 +86,7 @@ func And[T any, P gic.Predicate[T]](predicates ...P) P {
 
 // Or returns a predicate that returns true only in case any of the given predicates return true.
 // Or returns false if there are no given predicates.
-func Or[T any, P gic.Predicate[T]](predicates ...P) P {
+func Or[T any, P constraints.Predicate[T]](predicates ...P) P {
 	return func(value T) bool {
 		for _, predicate := range predicates {
 			if predicate(value) {
