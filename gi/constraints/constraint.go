@@ -28,7 +28,7 @@ type Number interface {
 
 // Ordered is any built-in type that can be ordered.
 type Ordered interface {
-	Integer | Float | ~string
+	Number | ~string
 }
 
 // Predicate is a function that takes an argument of type T and returns a bool.
