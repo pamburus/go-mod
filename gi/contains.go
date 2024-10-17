@@ -8,12 +8,12 @@ import (
 
 // Contains returns true if the given values contain a value matching the predicate.
 func Contains[V any, P gic.Predicate[V]](values iter.Seq[V], predicate P) bool {
-	return Find(values, predicate).IsSome()
+	return FindOpt(values, predicate).IsSome()
 }
 
 // ContainsPair returns true if the given pairs contain a pair matching the predicate.
 func ContainsPair[V1, V2 any, P gic.PairPredicate[V1, V2]](pairs iter.Seq2[V1, V2], predicate P) bool {
-	return FindPair(pairs, predicate).IsSome()
+	return FindPairOpt(pairs, predicate).IsSome()
 }
 
 // ContainsLeft returns true if the given pairs contain a pair with the first value matching the predicate.
