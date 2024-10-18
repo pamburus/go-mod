@@ -1,6 +1,6 @@
 # gi [![GoDoc][doc-img]][doc] [![Build Status][ci-img]][ci] [![Coverage Status][cov-img]][cov]
 
-Package gi provides a set of helpers for working with generic iterators.
+Module gi provides a set of helpers for working with generic iterators.
 
 [doc-img]: https://pkg.go.dev/badge/github.com/pamburus/go-mod/gi
 [doc]: https://pkg.go.dev/github.com/pamburus/go-mod/gi

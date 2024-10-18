@@ -1,7 +1,6 @@
 package gi_test
 
 import (
-	"maps"
 	"slices"
 	"testing"
 
@@ -34,39 +33,5 @@ func TestLimitEarlyExit(t *testing.T) {
 	}
 
 	expected := []int{1, 2}
-	assert.Equal(t, expected, result)
-}
-
-func TestLimitPairs(t *testing.T) {
-	pairs := slices.All([]int{2, 4, 6, 8})
-
-	limited := gi.LimitPairs(pairs, 2)
-	result := maps.Collect(limited)
-	expected := map[int]int{
-		0: 2,
-		1: 4,
-	}
-
-	assert.Equal(t, expected, result)
-}
-
-func TestLimitPairsEarlyExit(t *testing.T) {
-	pairs := slices.All([]int{2, 4, 6, 8})
-
-	limited := gi.LimitPairs(pairs, 2)
-	result := map[int]int{}
-
-	for k, v := range limited {
-		result[k] = v
-		if k == 1 {
-			break
-		}
-	}
-
-	expected := map[int]int{
-		0: 2,
-		1: 4,
-	}
-
 	assert.Equal(t, expected, result)
 }

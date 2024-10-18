@@ -3,16 +3,14 @@ package gi
 import (
 	"iter"
 
-	"golang.org/x/exp/constraints"
-
-	"github.com/pamburus/go-mod/gi/gic"
+	"github.com/pamburus/go-mod/gi/constraints"
 	"github.com/pamburus/go-mod/gi/giop"
 	"github.com/pamburus/go-mod/optional/optval"
 )
 
 // Max returns maximum value of the given values or [optval.None] if values is empty.
 func Max[V constraints.Ordered](values iter.Seq[V]) optval.Value[V] {
-	return Reduce(values, giop.Max[V])
+	return Reduce(values, giop.Max)
 }
 
 // MaxBy returns maximum value of the given values or [optval.None] if values is empty.
@@ -23,7 +21,7 @@ func MaxBy[V any, K constraints.Ordered, F ~func(V) K](values iter.Seq[V], key F
 
 // MaxByLess returns maximum value of the given values or [optval.None] if values is empty.
 // It uses Less method for comparison.
-func MaxByLess[V gic.OrderedByLess[V]](values iter.Seq[V]) optval.Value[V] {
+func MaxByLess[V constraints.OrderedByLess[V]](values iter.Seq[V]) optval.Value[V] {
 	return Reduce(values, giop.MaxByLess)
 }
 
@@ -35,7 +33,7 @@ func MaxByLessFunc[V any, F ~func(V, V) bool](values iter.Seq[V], less F) optval
 
 // MaxByCompare returns maximum value of the given values or [optval.None] if values is empty.
 // It uses Compare method for comparison.
-func MaxByCompare[V gic.OrderedByCompare[V]](values iter.Seq[V]) optval.Value[V] {
+func MaxByCompare[V constraints.OrderedByCompare[V]](values iter.Seq[V]) optval.Value[V] {
 	return Reduce(values, giop.MaxByCompare)
 }
 
