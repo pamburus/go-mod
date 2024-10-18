@@ -5,9 +5,10 @@ import (
 
 	"slices"
 
+	"github.com/stretchr/testify/assert"
+
 	"github.com/pamburus/go-mod/gi"
 	"github.com/pamburus/go-mod/gi/internal/testing/helpers"
-	"github.com/stretchr/testify/assert"
 )
 
 func TestConcat(t *testing.T) {

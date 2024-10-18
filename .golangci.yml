@@ -12,7 +12,7 @@ linters-settings:
   gocyclo:
     min-complexity: 32
   goimports:
-    local-prefixes: git.acronis.com
+    local-prefixes: github.com/pamburus
   lll:
     line-length: 140
   nolintlint:
@@ -75,7 +75,12 @@ issues:
     - path: '^gi/giop/(min|max)\.go$'
       linters:
         - dupl
+    - path: '^gi/giop2/(min|max)\.go$'
+      linters:
+        - dupl
     - path: '^gi/(min|max)\.go$'
       linters:
         - dupl
-      
+    - path: '^gi2/(min|max)\.go$'
+      linters:
+        - dupl

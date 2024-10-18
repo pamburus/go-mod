@@ -4,9 +4,10 @@ import (
 	"slices"
 	"testing"
 
+	"github.com/stretchr/testify/assert"
+
 	"github.com/pamburus/go-mod/gi"
 	"github.com/pamburus/go-mod/optional/optval"
-	"github.com/stretchr/testify/assert"
 )
 
 func TestEqual(t *testing.T) {

@@ -5,8 +5,9 @@ import (
 	"slices"
 	"testing"
 
-	"github.com/pamburus/go-mod/gi"
 	"github.com/stretchr/testify/assert"
+
+	"github.com/pamburus/go-mod/gi"
 )
 
 func TestSum(t *testing.T) {
