@@ -21,6 +21,16 @@ ifndef modules
 modules := $(filter-out build/tools,$(all-modules))
 endif
 
+# Tools
+go-test := go test
+go-tool-cover := go tool cover
+coverage-filter := go run ./build/tools/cmd/coverage-filter
+test-filter := go run ./build/tools/cmd/test-filter
+ifeq ($(verbose),yes)
+	coverage-filter += -v
+	go-test += -v
+endif
+ 
 ## Run all tests
 .PHONY: all
 all: ci
@@ -56,7 +66,7 @@ test: $(modules:%=test/%)
 ## Run tests for a module
 .PHONY: test/%
 test/%:
-	go test $(if $(verbose),-v) -coverprofile=$*/.cover.out ./$*/... | go run ./build/tools/cmd/test-filter
+	$(go-test) -coverprofile=$*/.cover.out ./$*/... | $(test-filter)
 
 # ---
 
@@ -67,7 +77,7 @@ coverage: $(modules:%=coverage/%)
 ## Show coverage for a module
 .PHONY: coverage/%
 coverage/%: test/%
-	go tool cover -func=$*/.cover.out | go run ./build/tools/cmd/coverage-filter ${import-path}
+	$(go-tool-cover) -func=$*/.cover.out | $(coverage-filter) $(import-path)
 
 # ---
 
