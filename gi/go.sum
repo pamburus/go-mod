@@ -1,7 +1,7 @@
 github.com/davecgh/go-spew v1.1.1 h1:vj9j/u1bqnvCEfJOwUhtlOARqs3+rkHYY13jYWTU97c=
 github.com/davecgh/go-spew v1.1.1/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
-github.com/pamburus/go-mod/optional v0.2.1 h1:Gu9KhN36o7qSAHlhqsYk1ivtgxRgcg+QVyy5Gytwan4=
-github.com/pamburus/go-mod/optional v0.2.1/go.mod h1:f6DEa51ZO02vZXygb0ZRIkvsA9NmN9zGNm0kUBzRHJw=
+github.com/pamburus/go-mod/optional v0.2.2 h1:c/M/O0opU86jm7hE/HksPm04+9kyNs/WkAKnGpUcMPw=
+github.com/pamburus/go-mod/optional v0.2.2/go.mod h1:f6DEa51ZO02vZXygb0ZRIkvsA9NmN9zGNm0kUBzRHJw=
 github.com/pmezard/go-difflib v1.0.0 h1:4DBwDE0NGyQoBHbLQYPwSUPoCMWR5BEzIk/f1lZbAQM=
 github.com/pmezard/go-difflib v1.0.0/go.mod h1:iKH77koFhYxTK1pcRnkKkqfTogsbg7gZNVY4sRDYZ/4=
 github.com/stretchr/testify v1.9.0 h1:HtqpIVDClZ4nwg75+f6Lvsy/wHu+3BoSGCbBAcpTsTg=
