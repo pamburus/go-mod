@@ -4,9 +4,10 @@ import (
 	"slices"
 	"testing"
 
+	"github.com/stretchr/testify/assert"
+
 	"github.com/pamburus/go-mod/gi"
 	"github.com/pamburus/go-mod/gi/internal/testing/helpers"
-	"github.com/stretchr/testify/assert"
 )
 
 func TestCount(t *testing.T) {

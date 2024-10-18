@@ -3,8 +3,9 @@ package giop_test
 import (
 	"testing"
 
-	"github.com/pamburus/go-mod/gi/giop"
 	"github.com/stretchr/testify/assert"
+
+	"github.com/pamburus/go-mod/gi/giop"
 )
 
 func TestAnd(t *testing.T) {
