@@ -23,14 +23,14 @@ var styleSettings = []styling.Setting{
 	styling.NewSetting(
 		`^PASS$`,
 		styling.NewStyle(
-			styling.NewSequence(sgr.SetForegroundColor(sgr.White), sgr.SetBackgroundColor(sgr.Green), sgr.SetBold)+"[",
+			styling.NewSequence(sgr.SetForegroundColor(sgr.Black), sgr.SetBackgroundColor(sgr.Green), sgr.SetBold)+"[",
 			"]"+styling.NewSequence(sgr.ResetAll),
 		),
 	),
 	styling.NewSetting(
 		`^FAIL$`,
 		styling.NewStyle(
-			styling.NewSequence(sgr.SetForegroundColor(sgr.White), sgr.SetBackgroundColor(sgr.Red), sgr.SetBold)+"[",
+			styling.NewSequence(sgr.SetForegroundColor(sgr.Black), sgr.SetBackgroundColor(sgr.Red), sgr.SetBold)+"[",
 			"]"+styling.NewSequence(sgr.ResetAll),
 		),
 	),
@@ -45,6 +45,13 @@ var styleSettings = []styling.Setting{
 		`^(ok|\?)\s+.*`,
 		styling.NewStyle(
 			styling.NewSequence(sgr.SetFaint),
+			styling.NewSequence(sgr.ResetAll),
+		),
+	),
+	styling.NewSetting(
+		`^=== RUN\s.*$`,
+		styling.NewStyle(
+			styling.NewSequence(sgr.SetForegroundColor(sgr.Cyan), sgr.SetFaint),
 			styling.NewSequence(sgr.ResetAll),
 		),
 	),
