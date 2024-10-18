@@ -1,8 +1,6 @@
-package pair
+package gi2
 
-import (
-	"golang.org/x/exp/constraints"
-)
+import "github.com/pamburus/go-mod/gi/constraints"
 
 // Equal returns a predicate that returns true in case its arguments are equal to the values v1 and v2.
 func Equal[V1, V2 comparable](v1 V1, v2 V2) func(V1, V2) bool {
@@ -55,7 +53,7 @@ func GreaterOrEqual[V1, V2 constraints.Ordered](o1 V1, o2 V2) func(V1, V2) bool 
 }
 
 // Not returns a predicate that returns true only in case the given predicate returns false.
-func Not[V1, V2 any, P Predicate[V1, V2]](predicate P) P {
+func Not[V1, V2 any, P constraints.Predicate2[V1, V2]](predicate P) P {
 	return func(v1 V1, v2 V2) bool {
 		return !predicate(v1, v2)
 	}
@@ -63,7 +61,7 @@ func Not[V1, V2 any, P Predicate[V1, V2]](predicate P) P {
 
 // And returns a predicate that returns true only in case all of the given predicates return true.
 // And returns true if there are no given predicates.
-func And[V1, V2 any, P Predicate[V1, V2]](predicates ...P) P {
+func And[V1, V2 any, P constraints.Predicate2[V1, V2]](predicates ...P) P {
 	return func(v1 V1, v2 V2) bool {
 		for _, predicate := range predicates {
 			if !predicate(v1, v2) {
@@ -77,7 +75,7 @@ func And[V1, V2 any, P Predicate[V1, V2]](predicates ...P) P {
 
 // Or returns a predicate that returns true only in case any of the given predicates return true.
 // Or returns false if there are no given predicates.
-func Or[V1, V2 any, P Predicate[V1, V2]](predicates ...P) P {
+func Or[V1, V2 any, P constraints.Predicate2[V1, V2]](predicates ...P) P {
 	return func(v1 V1, v2 V2) bool {
 		for _, predicate := range predicates {
 			if predicate(v1, v2) {

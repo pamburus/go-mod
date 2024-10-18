@@ -3,28 +3,26 @@ package giop
 import (
 	"math"
 
-	"golang.org/x/exp/constraints"
-
-	"github.com/pamburus/go-mod/gi/gic"
+	"github.com/pamburus/go-mod/gi/constraints"
 )
 
 // Add returns sum of left and right.
-func Add[T gic.Number](left T, right T) T {
+func Add[T constraints.Number](left T, right T) T {
 	return left + right
 }
 
 // Subtract returns difference of left and right.
-func Subtract[T gic.Number](left T, right T) T {
+func Subtract[T constraints.Number](left T, right T) T {
 	return left - right
 }
 
 // Multiply returns product of left and right.
-func Multiply[T gic.Number](left T, right T) T {
+func Multiply[T constraints.Number](left T, right T) T {
 	return left * right
 }
 
 // Divide returns integer part of left / right.
-func Divide[T gic.Number](left T, right T) T {
+func Divide[T constraints.Number](left T, right T) T {
 	return left / right
 }
 

@@ -1,4 +1,4 @@
-package gi_test
+package gi2_test
 
 import (
 	"slices"
@@ -6,7 +6,7 @@ import (
 
 	"github.com/stretchr/testify/assert"
 
-	"github.com/pamburus/go-mod/gi"
+	"github.com/pamburus/go-mod/gi/gi2"
 	"github.com/pamburus/go-mod/gi/giop"
 	"github.com/pamburus/go-mod/gi/internal/testing/helpers"
 )
@@ -15,7 +15,7 @@ func TestPairFold(t *testing.T) {
 	t.Run("Add", func(t *testing.T) {
 		pairs := slices.All([]int{2, 4, 6})
 
-		folded := gi.PairFold(pairs, giop.Add)
+		folded := gi2.PairFold(pairs, giop.Add)
 
 		expected := []int{2, 5, 8}
 		result := slices.Collect(folded)
@@ -35,7 +35,7 @@ func TestPairUnfold(t *testing.T) {
 	t.Run("DivMod", func(t *testing.T) {
 		values := slices.Values([]int{2, 3, 4})
 
-		unfolded := gi.PairUnfold(values, div)
+		unfolded := gi2.PairUnfold(values, div)
 
 		expected := []int{1, 0, 1, 1, 2, 0}
 		result := slices.Collect(helpers.FlattenPairs(unfolded))
@@ -51,7 +51,7 @@ func TestPairSwap(t *testing.T) {
 	t.Run("Swap", func(t *testing.T) {
 		pairs := slices.All([]int{1, 2, 3, 4})
 
-		swapped := gi.PairSwap(pairs)
+		swapped := gi2.PairSwap(pairs)
 
 		expected := []int{1, 0, 2, 1, 3, 2, 4, 3}
 		result := slices.Collect(helpers.FlattenPairs(swapped))

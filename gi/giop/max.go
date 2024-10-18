@@ -1,10 +1,6 @@
 package giop
 
-import (
-	"golang.org/x/exp/constraints"
-
-	"github.com/pamburus/go-mod/gi/gic"
-)
+import "github.com/pamburus/go-mod/gi/constraints"
 
 // Max returns the maximum value of the left and right.
 func Max[T constraints.Ordered](left, right T) T {
@@ -24,7 +20,7 @@ func MaxBy[T any, K constraints.Ordered, Key ~func(T) K](key Key) func(T, T) T {
 }
 
 // MaxByLess returns the maximum value of the left and right using Less method for comparison.
-func MaxByLess[T gic.OrderedByLess[T]](left, right T) T {
+func MaxByLess[T constraints.OrderedByLess[T]](left, right T) T {
 	return MaxByLessFunc(T.Less)(left, right)
 }
 
@@ -41,7 +37,7 @@ func MaxByLessFunc[T any, F ~func(T, T) bool](less F) func(left, right T) T {
 }
 
 // MaxByCompare returns the maximum value of the left and right using Compare method for comparison.
-func MaxByCompare[T gic.OrderedByCompare[T]](left, right T) T {
+func MaxByCompare[T constraints.OrderedByCompare[T]](left, right T) T {
 	return MaxByCompareFunc(T.Compare)(left, right)
 }
 
