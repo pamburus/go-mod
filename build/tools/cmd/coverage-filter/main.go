@@ -2,6 +2,7 @@ package main
 
 import (
 	"bufio"
+	"flag"
 	"fmt"
 	"io"
 	"iter"
@@ -103,15 +104,34 @@ func tabulate(lines iter.Seq[string]) iter.Seq[string] {
 	}
 }
 
+func stripVerbose(lines iter.Seq[string]) iter.Seq[string] {
+	return func(yield func(string) bool) {
+		for line := range lines {
+			if !verboseFilter.match(line) {
+				yield(line)
+			}
+		}
+	}
+}
+
 func main() {
-	if len(os.Args) < 2 {
-		fmt.Println("Usage: coverage-filter <base-import-path>")
+	var verbose bool
+
+	flag.BoolVar(&verbose, "v", false, "verbose output")
+	flag.Parse()
+	args := flag.Args()
+
+	if len(args) != 1 {
+		fmt.Printf("Usage: %s [-v] <base-import-path>\n", os.Args[0])
 		os.Exit(1)
 	}
 
-	baseImportPath := os.Args[1] + "/"
+	baseImportPath := args[0] + "/"
 
 	lines := readLines(os.Stdin)
+	if !verbose {
+		lines = stripVerbose(lines)
+	}
 	lines = improveImportPath(lines, baseImportPath)
 	lines = tabulate(lines)
 	lines = colorize(lines)

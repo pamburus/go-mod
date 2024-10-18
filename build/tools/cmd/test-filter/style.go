@@ -42,10 +42,10 @@ var styleSettings = []styling.Setting{
 		),
 	),
 	styling.NewSetting(
-		`^ok\s+.*`,
+		`^(ok|\?)\s+.*`,
 		styling.NewStyle(
-			styling.NewSequence(),
-			styling.NewSequence(),
+			styling.NewSequence(sgr.SetFaint),
+			styling.NewSequence(sgr.ResetAll),
 		),
 	),
 	styling.NewSetting(
