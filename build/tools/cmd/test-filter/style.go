@@ -7,10 +7,10 @@ import (
 
 var styleSettings = []styling.Setting{
 	styling.NewSetting(
-		`^\s*--- PASS: .* \(\d+\.\d+s\)$`,
+		`^\s*--- PASS: [\w/]+\b`,
 		styling.NewStyle(
-			styling.NewSequence(sgr.SetForegroundColor(sgr.Green)),
-			styling.NewSequence(sgr.ResetAll),
+			styling.NewSequence(),
+			styling.NewSequence(),
 		),
 	),
 	styling.NewSetting(
@@ -51,7 +51,7 @@ var styleSettings = []styling.Setting{
 	styling.NewSetting(
 		`^=== RUN\s.*$`,
 		styling.NewStyle(
-			styling.NewSequence(sgr.SetForegroundColor(sgr.Cyan), sgr.SetFaint),
+			styling.NewSequence(sgr.SetFaint),
 			styling.NewSequence(sgr.ResetAll),
 		),
 	),
@@ -72,14 +72,56 @@ var styleSettings = []styling.Setting{
 	styling.NewSetting(
 		`\bexpected\s*: .*`,
 		styling.NewStyle(
-			styling.NewSequence(),
-			styling.NewSequence(),
+			styling.NewSequence(sgr.SetForegroundColor(sgr.Blue)),
+			styling.NewSequence(sgr.ResetAll),
 		),
 	),
 	styling.NewSetting(
 		`\bactual\s*: .*`,
 		styling.NewStyle(
 			styling.NewSequence(sgr.SetForegroundColor(sgr.Red), sgr.SetUnderlined),
+			styling.NewSequence(sgr.ResetAll),
+		),
+	),
+	styling.NewSetting(
+		`^ {8}\t {12}\tDiff:\s*$`,
+		styling.NewStyle(
+			styling.NewSequence(sgr.SetFaint),
+			styling.NewSequence(sgr.ResetAll),
+		),
+	),
+	styling.NewSetting(
+		`^ {8}\t {12}\t--- Expected\s*$`,
+		styling.NewStyle(
+			styling.NewSequence(sgr.SetForegroundColor(sgr.Blue)),
+			styling.NewSequence(sgr.ResetAll),
+		),
+	),
+	styling.NewSetting(
+		`^ {8}\t {12}\t\+\+\+ Actual\s*$`,
+		styling.NewStyle(
+			styling.NewSequence(sgr.SetForegroundColor(sgr.Red)),
+			styling.NewSequence(sgr.ResetAll),
+		),
+	),
+	styling.NewSetting(
+		`^ {8}\t {12}\t@@ [-\+]?[\d]+,[-\+]?[\d]+ [-\+]?[\d]+,[-\+]?[\d]+ @@\s*$`,
+		styling.NewStyle(
+			styling.NewSequence(sgr.SetFaint),
+			styling.NewSequence(sgr.ResetAll),
+		),
+	),
+	styling.NewSetting(
+		`^ {8}\t {12}\t- .*$`,
+		styling.NewStyle(
+			styling.NewSequence(sgr.SetForegroundColor(sgr.Blue)),
+			styling.NewSequence(sgr.ResetAll),
+		),
+	),
+	styling.NewSetting(
+		`^ {8}\t {12}\t\+ .*$`,
+		styling.NewStyle(
+			styling.NewSequence(sgr.SetForegroundColor(sgr.Red)),
 			styling.NewSequence(sgr.ResetAll),
 		),
 	),
