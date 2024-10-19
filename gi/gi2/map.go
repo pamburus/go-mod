@@ -4,10 +4,17 @@ import "iter"
 
 // Map returns an iterator adapter over pairs that uses a transform function to transform pairs.
 func Map[V1, V2, R1, R2 any, F ~func(V1, V2) (R1, R2)](pairs iter.Seq2[V1, V2], transform F) iter.Seq2[R1, R2] {
-	return func(yield func(R1, R2) bool) {
-		for v1, v2 := range pairs {
-			if !yield(transform(v1, v2)) {
-				return
+	return MapWith(transform)(pairs)
+}
+
+// MapWith returns a function that transforms an iterator sequence over pairs to an iterator sequence over transformed pairs.
+func MapWith[V1, V2, R1, R2 any, F ~func(V1, V2) (R1, R2)](transform F) func(iter.Seq2[V1, V2]) iter.Seq2[R1, R2] {
+	return func(pairs iter.Seq2[V1, V2]) iter.Seq2[R1, R2] {
+		return func(yield func(R1, R2) bool) {
+			for v1, v2 := range pairs {
+				if !yield(transform(v1, v2)) {
+					return
+				}
 			}
 		}
 	}
