@@ -8,6 +8,7 @@ import (
 	"github.com/stretchr/testify/assert"
 
 	"github.com/pamburus/go-mod/gi/gi2"
+	"github.com/pamburus/go-mod/gi/internal/testing/helpers"
 )
 
 func TestMap(t *testing.T) {
@@ -20,7 +21,7 @@ func TestMap(t *testing.T) {
 	expected := map[int]int{0: 4, 2: 8, 4: -4, 6: 10}
 	assert.Equal(t, expected, maps.Collect(result))
 
-	result = gi2.Limit(gi2.Map(pairs, transform), 3)
+	result = helpers.LimitPairs(3, gi2.Map(pairs, transform))
 	expected = map[int]int{0: 4, 2: 8, 4: -4}
 	assert.Equal(t, expected, maps.Collect(result))
 }
@@ -35,7 +36,7 @@ func TestMapLeft(t *testing.T) {
 	expected := map[int]int{0: 1, 2: 3, 4: 5}
 	assert.Equal(t, expected, maps.Collect(result))
 
-	result = gi2.Limit(gi2.MapLeft(pairs, transform), 2)
+	result = helpers.LimitPairs(2, gi2.MapLeft(pairs, transform))
 	expected = map[int]int{0: 1, 2: 3}
 	assert.Equal(t, expected, maps.Collect(result))
 }
@@ -50,7 +51,7 @@ func TestMapRight(t *testing.T) {
 	expected := map[int]int{0: 2, 1: 6, 2: 10}
 	assert.Equal(t, expected, maps.Collect(result))
 
-	result = gi2.Limit(gi2.MapRight(pairs, transform), 2)
+	result = helpers.LimitPairs(2, gi2.MapRight(pairs, transform))
 	expected = map[int]int{0: 2, 1: 6}
 	assert.Equal(t, expected, maps.Collect(result))
 }

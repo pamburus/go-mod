@@ -7,6 +7,7 @@ import (
 	"github.com/stretchr/testify/assert"
 
 	"github.com/pamburus/go-mod/gi"
+	"github.com/pamburus/go-mod/gi/internal/testing/helpers"
 )
 
 func TestMap(t *testing.T) {
@@ -19,7 +20,7 @@ func TestMap(t *testing.T) {
 	expected := []int{2, 4, 6}
 	assert.Equal(t, expected, slices.Collect(result))
 
-	result = gi.Limit(gi.Map(values, transform), 2)
+	result = helpers.Limit(2, gi.Map(values, transform))
 	expected = []int{2, 4}
 	assert.Equal(t, expected, slices.Collect(result))
 }

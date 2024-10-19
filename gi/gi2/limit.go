@@ -1,11 +1,15 @@
 package gi2
 
-import "iter"
+import (
+	"iter"
+
+	"github.com/pamburus/go-mod/gi/constraints"
+)
 
 // Limit returns an iterator sequence that yields at most n pairs.
-func Limit[V1, V2 any](pairs iter.Seq2[V1, V2], n int) iter.Seq2[V1, V2] {
+func Limit[V1, V2 any, I constraints.Integer](n I, pairs iter.Seq2[V1, V2]) iter.Seq2[V1, V2] {
 	return func(yield func(V1, V2) bool) {
-		i := 0
+		i := I(0)
 		for v1, v2 := range pairs {
 			if i >= n {
 				return
