@@ -377,3 +377,48 @@ func TestLess(t *testing.T) {
 		optpair.None[int, string](),
 	))
 }
+
+func TestIsSome(t *testing.T) {
+	assert.True(t, optpair.IsSome(optpair.Some(42, "forty-two")))
+	assert.False(t, optpair.IsSome(optpair.None[int, string]()))
+}
+
+func TestIsNone(t *testing.T) {
+	assert.False(t, optpair.IsNone(optpair.Some(42, "forty-two")))
+	assert.True(t, optpair.IsNone(optpair.None[int, string]()))
+}
+
+func TestOr(t *testing.T) {
+	pair := optpair.Some(1, "one")
+	otherPair := optpair.Some(2, "two")
+	assert.Equal(t, pair, optpair.Or(pair))
+	assert.Equal(t, pair, optpair.Or(pair, otherPair))
+
+	nonePair := optpair.None[int, string]()
+	assert.Equal(t, otherPair, optpair.Or(nonePair, otherPair))
+	assert.Equal(t, nonePair, optpair.Or(nonePair, nonePair))
+}
+
+func TestOrZero(t *testing.T) {
+	group := func(v ...any) []any {
+		return v
+	}
+
+	pair := optpair.Some(1, "one")
+	assert.Equal(t, group(1, "one"), group(optpair.OrZero(pair)))
+
+	nonePair := optpair.None[int, string]()
+	assert.Equal(t, group(0, ""), group(optpair.OrZero(nonePair)))
+}
+
+func TestUnwrap(t *testing.T) {
+	group := func(v ...any) []any {
+		return v
+	}
+
+	pair := optpair.Some(1, "one")
+	assert.Equal(t, group(1, "one", true), group(optpair.Unwrap(pair)))
+
+	nonePair := optpair.None[int, string]()
+	assert.Equal(t, group(0, "", false), group(optpair.Unwrap(nonePair)))
+}

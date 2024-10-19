@@ -1,6 +1,7 @@
 package optval_test
 
 import (
+	"iter"
 	"slices"
 	"testing"
 
@@ -114,6 +115,8 @@ func TestOr(t *testing.T) {
 	u := optval.None[int]()
 	assert.Equal(t, 42, v.Or(u).OrZero())
 	assert.Equal(t, 42, u.Or(v).OrZero())
+	assert.Equal(t, 42, optval.Or(optval.Some(42), optval.None[int]()).OrZero())
+	assert.Equal(t, 42, optval.Or(optval.None[int](), optval.Some(42)).OrZero())
 }
 
 func TestOrSome(t *testing.T) {
@@ -288,4 +291,40 @@ func TestLess(t *testing.T) {
 		optval.None[int](),
 		optval.None[int](),
 	))
+}
+
+func TestIsSome(t *testing.T) {
+	assert.True(t, optval.IsSome(optval.Some(42)))
+	assert.False(t, optval.IsSome(optval.None[int]()))
+}
+
+func TestIsNone(t *testing.T) {
+	assert.False(t, optval.IsNone(optval.Some(42)))
+	assert.True(t, optval.IsNone(optval.None[int]()))
+}
+
+func TestOrZero(t *testing.T) {
+	assert.Equal(t, 42, optval.OrZero(optval.Some(42)))
+	assert.Equal(t, 0, optval.OrZero(optval.None[int]()))
+}
+
+func TestUnwrap(t *testing.T) {
+	group := func(v ...any) []any {
+		return v
+	}
+
+	assert.Equal(t, group(42, true), group(optval.Unwrap(optval.Some(42))))
+	assert.Equal(t, group(0, false), group(optval.Unwrap(optval.None[int]())))
+}
+
+func TestFindSome(t *testing.T) {
+	values := func(n int) iter.Seq[optval.Value[int]] {
+		return slices.Values([]optval.Value[int]{
+			optval.None[int](),
+			optval.Some(42),
+			optval.None[int](),
+		}[:n])
+	}
+	assert.Equal(t, optval.Some(42), optval.FindSome(values(3)))
+	assert.Equal(t, optval.None[int](), optval.FindSome(values(1)))
 }

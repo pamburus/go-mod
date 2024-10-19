@@ -3,6 +3,7 @@ package optpair
 import (
 	"cmp"
 	"iter"
+	"slices"
 
 	"github.com/pamburus/go-mod/optional/internal/cmpx"
 	"github.com/pamburus/go-mod/optional/optval"
@@ -144,36 +145,64 @@ func JoinOr[V1, V2 any](v1 optval.Value[V1], v2 optval.Value[V2]) Pair[V1, V2] {
 
 // Split returns the inner values of the given pair as [optval.Value]s.
 func Split[V1, V2 any](pair Pair[V1, V2]) (optval.Value[V1], optval.Value[V2]) {
-	return Left(pair), Right(pair)
+	return pair.Split()
 }
 
 // Left returns the left value of the given pair if it is [Some].
 // Otherwise, it returns [None].
 func Left[V1, V2 any](pair Pair[V1, V2]) optval.Value[V1] {
-	if pair.IsSome() {
-		return optval.Some(pair.v1)
-	}
-
-	return optval.None[V1]()
+	return pair.Left()
 }
 
 // Right returns the right value of the given pair if it is [Some].
 // Otherwise, it returns [None].
 func Right[V1, V2 any](pair Pair[V1, V2]) optval.Value[V2] {
-	if pair.IsSome() {
-		return optval.Some(pair.v2)
-	}
-
-	return optval.None[V2]()
+	return pair.Right()
 }
 
 // Swap returns a new pair with swapped inner values.
 func Swap[V1, V2 any](pair Pair[V1, V2]) Pair[V2, V1] {
-	if pair.IsSome() {
-		return Some(pair.v2, pair.v1)
+	return pair.Swap()
+}
+
+// IsSome returns true if the given pair is [Some].
+func IsSome[V1, V2 any](pair Pair[V1, V2]) bool {
+	return pair.IsSome()
+}
+
+// IsNone returns true if the given pair is [None].
+func IsNone[V1, V2 any](pair Pair[V1, V2]) bool {
+	return pair.IsNone()
+}
+
+// Or returns the first [Some] pair from the given pairs.
+// If all pairs are [None], it returns [None].
+func Or[V1, V2 any](pairs ...Pair[V1, V2]) Pair[V1, V2] {
+	return FindSome(slices.Values(pairs))
+}
+
+// OrZero returns the inner values of the given pair if it is [Some].
+// Otherwise, it returns zero initialized values.
+func OrZero[V1, V2 any](pair Pair[V1, V2]) (V1, V2) {
+	return pair.OrZero()
+}
+
+// Unwrap returns the inner values of the given pair if it is [Some].
+// Otherwise, it returns zero values and false.
+func Unwrap[V1, V2 any](pair Pair[V1, V2]) (V1, V2, bool) {
+	return pair.Unwrap()
+}
+
+// FindSome returns the first optional pair that is [Some] or [None] if all pairs are [None].
+// It returns [None] if the sequence is empty.
+func FindSome[V1, V2 any](pairs iter.Seq[Pair[V1, V2]]) Pair[V1, V2] {
+	for pair := range pairs {
+		if pair.IsSome() {
+			return pair
+		}
 	}
 
-	return None[V2, V1]()
+	return None[V1, V2]()
 }
 
 // ---
@@ -242,6 +271,38 @@ func (p Pair[V1, V2]) OrElseSome(f func() (V1, V2)) (V1, V2) {
 	}
 
 	return f()
+}
+
+// Left returns the left value of the pair if it is [Some].
+func (p Pair[V1, V2]) Left() optval.Value[V1] {
+	if p.IsSome() {
+		return optval.Some(p.v1)
+	}
+
+	return optval.None[V1]()
+}
+
+// Right returns the right value of the pair if it is [Some].
+func (p Pair[V1, V2]) Right() optval.Value[V2] {
+	if p.IsSome() {
+		return optval.Some(p.v2)
+	}
+
+	return optval.None[V2]()
+}
+
+// Swap returns a new pair with swapped inner values.
+func (p Pair[V1, V2]) Swap() Pair[V2, V1] {
+	if p.IsSome() {
+		return Some(p.v2, p.v1)
+	}
+
+	return None[V2, V1]()
+}
+
+// Split returns the inner values of the pair as [optval.Value]s.
+func (p Pair[V1, V2]) Split() (optval.Value[V1], optval.Value[V2]) {
+	return p.Left(), p.Right()
 }
 
 // Reset resets p to [None].

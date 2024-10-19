@@ -3,6 +3,7 @@ package optval
 import (
 	"cmp"
 	"iter"
+	"slices"
 
 	"github.com/pamburus/go-mod/optional/internal/cmpx"
 )
@@ -143,6 +144,44 @@ func Compare[T cmp.Ordered](a, b Value[T]) int {
 // [Some] is considered less than [None].
 func Less[T cmp.Ordered](a, b Value[T]) bool {
 	return Compare(a, b) < 0
+}
+
+// IsSome returns true if the optional value v has inner value.
+func IsSome[T any](v Value[T]) bool {
+	return v.IsSome()
+}
+
+// IsNone returns true if the optional value v has no inner value.
+func IsNone[T any](v Value[T]) bool {
+	return v.IsNone()
+}
+
+// Or returns the first optional value that is [Some] or [None] if all values are [None].
+func Or[T any](values ...Value[T]) Value[T] {
+	return FindSome(slices.Values(values))
+}
+
+// OrZero returns the inner value of the optional value v if it is [Some], otherwise it returns zero value.
+func OrZero[T any](v Value[T]) T {
+	return v.OrZero()
+}
+
+// Unwrap returns the inner value of type T and true if it is [Some].
+// Otherwise it returns zero value and false.
+func Unwrap[T any](v Value[T]) (T, bool) {
+	return v.Unwrap()
+}
+
+// FindSome returns the first optional value that is [Some] or [None] if all values are [None].
+// It returns [None] if the sequence is empty.
+func FindSome[T any](values iter.Seq[Value[T]]) Value[T] {
+	for value := range values {
+		if value.IsSome() {
+			return value
+		}
+	}
+
+	return None[T]()
 }
 
 // ---
