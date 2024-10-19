@@ -1,6 +1,7 @@
 package gi2_test
 
 import (
+	"slices"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -91,4 +92,20 @@ func TestIsNotZero(t *testing.T) {
 	assert.False(t, gi2.IsNotZero(0, ""))
 	assert.True(t, gi2.IsNotZero(1, ""))
 	assert.True(t, gi2.IsNotZero(0, "zero"))
+}
+
+func TestEach(t *testing.T) {
+	predicate := gi2.Each(gi2.IsNotZero[int, int])
+	assert.True(t, predicate(slices.All([]int{})))
+	assert.False(t, predicate(slices.All([]int{0})))
+	assert.True(t, predicate(slices.All([]int{1})))
+	assert.True(t, predicate(slices.All([]int{1, 2})))
+}
+
+func TestAny(t *testing.T) {
+	predicate := gi2.Any(gi2.IsZero[int, int])
+	assert.False(t, predicate(slices.All([]int{})))
+	assert.True(t, predicate(slices.All([]int{0})))
+	assert.False(t, predicate(slices.All([]int{1})))
+	assert.True(t, predicate(slices.All([]int{0, 1})))
 }

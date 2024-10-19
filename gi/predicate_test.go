@@ -1,6 +1,7 @@
 package gi_test
 
 import (
+	"slices"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -121,4 +122,16 @@ func TestIsNotZero(t *testing.T) {
 	assert.False(t, gi.IsNotZero(struct{}{}))
 	assert.False(t, gi.IsNotZero(struct{ int }{}))
 	assert.True(t, gi.IsNotZero(struct{ int }{3}))
+}
+
+func TestEach(t *testing.T) {
+	eachIsEven := gi.Each(gi.Even[int])
+	assert.True(t, eachIsEven(slices.Values([]int{2, 4, 6})))
+	assert.False(t, eachIsEven(slices.Values([]int{2, 3, 4})))
+}
+
+func TestAny(t *testing.T) {
+	anyIsEven := gi.Any(gi.Even[int])
+	assert.True(t, anyIsEven(slices.Values([]int{2, 3, 4})))
+	assert.False(t, anyIsEven(slices.Values([]int{3, 5, 7})))
 }
