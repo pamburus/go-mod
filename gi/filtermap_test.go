@@ -8,19 +8,18 @@ import (
 
 	"github.com/pamburus/go-mod/gi"
 	"github.com/pamburus/go-mod/gi/internal/testing/helpers"
-	"github.com/pamburus/go-mod/optional/optval"
 )
 
 func TestFilterMap(t *testing.T) {
 	empty := slices.Values([]int{})
 	oneToFour := slices.Values([]int{1, 2, 3, 4})
 
-	evenX10 := func(v int) optval.Value[int] {
+	evenX10 := func(v int) (int, bool) {
 		if v%2 == 0 {
-			return optval.Some(v * 10)
+			return v * 10, true
 		}
 
-		return optval.None[int]()
+		return 0, false
 	}
 
 	require.Equal(t, []int(nil), slices.Collect(gi.FilterMap(empty, evenX10)))

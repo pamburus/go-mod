@@ -10,107 +10,126 @@ import (
 	"github.com/stretchr/testify/assert"
 
 	"github.com/pamburus/go-mod/gi"
-	"github.com/pamburus/go-mod/optional/optval"
 )
 
 func TestMin(t *testing.T) {
+	type opt struct {
+		value int
+		valid bool
+	}
+
 	tests := []struct {
 		name     string
 		values   iter.Seq[int]
-		expected optval.Value[int]
+		expected opt
 	}{
 		{
 			name:     "Empty",
 			values:   slices.Values([]int{}),
-			expected: optval.None[int](),
+			expected: opt{},
 		},
 		{
 			name:     "Single",
 			values:   slices.Values([]int{1}),
-			expected: optval.Some(1),
+			expected: opt{1, true},
 		},
 		{
 			name:     "Multiple",
 			values:   slices.Values([]int{3, 1, 2}),
-			expected: optval.Some(1),
+			expected: opt{1, true},
 		},
 	}
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			actual := gi.Min(tt.values)
-			assert.Equal(t, tt.expected, actual)
+			actual, ok := gi.Min(tt.values)
+			assert.Equal(t, tt.expected, opt{actual, ok})
 		})
 	}
 }
 
 func TestMinBy(t *testing.T) {
+	type opt struct {
+		value string
+		valid bool
+	}
+
 	tests := []struct {
 		name     string
 		values   iter.Seq[string]
 		key      func(string) int
-		expected optval.Value[string]
+		expected opt
 	}{
 		{
 			name:     "Empty",
 			values:   slices.Values([]string{}),
 			key:      strLen,
-			expected: optval.None[string](),
+			expected: opt{},
 		},
 		{
 			name:     "Single",
 			values:   slices.Values([]string{"a"}),
 			key:      strLen,
-			expected: optval.Some("a"),
+			expected: opt{"a", true},
 		},
 		{
 			name:     "Multiple",
 			values:   slices.Values([]string{"abc", "a", "ab"}),
 			key:      strLen,
-			expected: optval.Some("a"),
+			expected: opt{"a", true},
 		},
 	}
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			actual := gi.MinBy(tt.values, tt.key)
-			assert.Equal(t, tt.expected, actual)
+			actual, ok := gi.MinBy(tt.values, tt.key)
+			assert.Equal(t, tt.expected, opt{actual, ok})
 		})
 	}
 }
 
 func TestMinByLess(t *testing.T) {
+	type opt struct {
+		value strLessByLen
+		valid bool
+	}
+
 	tests := []struct {
 		name     string
 		values   iter.Seq[strLessByLen]
-		expected optval.Value[strLessByLen]
+		expected opt
 	}{
 		{
 			name:     "Empty",
 			values:   slices.Values([]strLessByLen{}),
-			expected: optval.None[strLessByLen](),
+			expected: opt{},
 		},
 		{
 			name:     "Single",
 			values:   slices.Values([]strLessByLen{"a"}),
-			expected: optval.Some(strLessByLen("a")),
+			expected: opt{strLessByLen("a"), true},
 		},
 		{
 			name:     "Multiple",
 			values:   slices.Values([]strLessByLen{"abc", "a", "ab"}),
-			expected: optval.Some(strLessByLen("a")),
+			expected: opt{strLessByLen("a"), true},
 		},
 	}
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			actual := gi.MinByLess(tt.values)
-			assert.Equal(t, tt.expected, actual)
+			actual, ok := gi.MinByLess(tt.values)
+			assert.Equal(t, tt.expected, opt{actual, ok})
 		})
 	}
 }
 
 func TestMinByLessFunc(t *testing.T) {
+	type opt struct {
+		value string
+		valid bool
+	}
+
 	less := func(a, b string) bool {
 		return len(a) < len(b)
 	}
@@ -119,68 +138,78 @@ func TestMinByLessFunc(t *testing.T) {
 		name     string
 		values   iter.Seq[string]
 		less     func(string, string) bool
-		expected optval.Value[string]
+		expected opt
 	}{
 		{
 			name:     "Empty",
 			values:   slices.Values([]string{}),
 			less:     less,
-			expected: optval.None[string](),
+			expected: opt{},
 		},
 		{
 			name:     "Single",
 			values:   slices.Values([]string{"a"}),
 			less:     less,
-			expected: optval.Some("a"),
+			expected: opt{"a", true},
 		},
 		{
 			name:     "Multiple",
 			values:   slices.Values([]string{"abc", "a", "ab"}),
 			less:     less,
-			expected: optval.Some("a"),
+			expected: opt{"a", true},
 		},
 	}
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			actual := gi.MinByLessFunc(tt.values, tt.less)
-			assert.Equal(t, tt.expected, actual)
+			actual, ok := gi.MinByLessFunc(tt.values, tt.less)
+			assert.Equal(t, tt.expected, opt{actual, ok})
 		})
 	}
 }
 
 func TestMinByCompare(t *testing.T) {
+	type opt struct {
+		value strCompareByLen
+		valid bool
+	}
+
 	tests := []struct {
 		name     string
 		values   iter.Seq[strCompareByLen]
-		expected optval.Value[strCompareByLen]
+		expected opt
 	}{
 		{
 			name:     "Empty",
 			values:   slices.Values([]strCompareByLen{}),
-			expected: optval.None[strCompareByLen](),
+			expected: opt{},
 		},
 		{
 			name:     "Single",
 			values:   slices.Values([]strCompareByLen{"a"}),
-			expected: optval.Some(strCompareByLen("a")),
+			expected: opt{strCompareByLen("a"), true},
 		},
 		{
 			name:     "Multiple",
 			values:   slices.Values([]strCompareByLen{"abc", "a", "ab"}),
-			expected: optval.Some(strCompareByLen("a")),
+			expected: opt{strCompareByLen("a"), true},
 		},
 	}
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			actual := gi.MinByCompare(tt.values)
-			assert.Equal(t, tt.expected, actual)
+			actual, ok := gi.MinByCompare(tt.values)
+			assert.Equal(t, tt.expected, opt{actual, ok})
 		})
 	}
 }
 
 func TestMinByCompareFunc(t *testing.T) {
+	type opt struct {
+		value string
+		valid bool
+	}
+
 	compare := func(a, b string) int {
 		return cmp.Compare(len(a), len(b))
 	}
@@ -189,32 +218,32 @@ func TestMinByCompareFunc(t *testing.T) {
 		name     string
 		values   iter.Seq[string]
 		compare  func(string, string) int
-		expected optval.Value[string]
+		expected opt
 	}{
 		{
 			name:     "Empty",
 			values:   slices.Values([]string{}),
 			compare:  compare,
-			expected: optval.None[string](),
+			expected: opt{},
 		},
 		{
 			name:     "Single",
 			values:   slices.Values([]string{"a"}),
 			compare:  compare,
-			expected: optval.Some("a"),
+			expected: opt{"a", true},
 		},
 		{
 			name:     "Multiple",
 			values:   slices.Values([]string{"abc", "a", "ab"}),
 			compare:  compare,
-			expected: optval.Some("a"),
+			expected: opt{"a", true},
 		},
 	}
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			actual := gi.MinByCompareFunc(tt.values, tt.compare)
-			assert.Equal(t, tt.expected, actual)
+			actual, ok := gi.MinByCompareFunc(tt.values, tt.compare)
+			assert.Equal(t, tt.expected, opt{actual, ok})
 		})
 	}
 }

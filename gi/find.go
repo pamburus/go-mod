@@ -4,16 +4,15 @@ import (
 	"iter"
 
 	"github.com/pamburus/go-mod/gi/constraints"
-	"github.com/pamburus/go-mod/optional/optval"
 )
 
 // Find returns the first value among the values matching the predicate.
-func Find[V any, P constraints.Predicate[V]](values iter.Seq[V], predicate P) optval.Value[V] {
+func Find[V any, P constraints.Predicate[V]](values iter.Seq[V], predicate P) (V, bool) {
 	for v := range values {
 		if predicate(v) {
-			return optval.Some(v)
+			return v, true
 		}
 	}
 
-	return optval.None[V]()
+	return zero[V](), false
 }

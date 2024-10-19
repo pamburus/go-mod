@@ -1,116 +1,124 @@
 package gi_test
 
 import (
-	"slices"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
 
 	"github.com/pamburus/go-mod/gi"
-	"github.com/pamburus/go-mod/optional/optval"
 )
 
 func TestEqual(t *testing.T) {
-	values := slices.Values([]int{1, 2, 3, 4, 5, 6})
-	assert.Equal(t, optval.Some(3), gi.Find(values, gi.Equal(3)))
-	assert.Equal(t, optval.None[int](), gi.Find(values, gi.Equal(7)))
+	assert.True(t, gi.Equal(3)(3))
+	assert.False(t, gi.Equal(3)(2))
 }
 
 func TestNotEqual(t *testing.T) {
-	values := slices.Values([]int{1})
-	assert.Equal(t, optval.Some(1), gi.Find(values, gi.NotEqual(4)))
-	assert.Equal(t, optval.None[int](), gi.Find(values, gi.NotEqual(1)))
+	assert.True(t, gi.NotEqual(3)(2))
+	assert.False(t, gi.NotEqual(3)(3))
 }
 
 func TestLess(t *testing.T) {
-	values := slices.Values([]int{1, 2, 3, 4, 5, 6})
-	assert.Equal(t, optval.Some(1), gi.Find(values, gi.Less(4)))
-	assert.Equal(t, optval.None[int](), gi.Find(values, gi.Less(1)))
+	lt4 := gi.Less(4)
+	assert.True(t, lt4(3))
+	assert.False(t, lt4(4))
 }
 
 func TestLessOrEqual(t *testing.T) {
-	values := slices.Values([]int{1, 2, 3, 4, 5, 6})
-	assert.Equal(t, optval.Some(1), gi.Find(values, gi.LessOrEqual(4)))
-	assert.Equal(t, optval.Some(1), gi.Find(values, gi.LessOrEqual(1)))
-	assert.Equal(t, optval.None[int](), gi.Find(values, gi.LessOrEqual(0)))
+	le4 := gi.LessOrEqual(4)
+	assert.True(t, le4(3))
+	assert.True(t, le4(4))
+	assert.False(t, le4(5))
 }
 
 func TestGreater(t *testing.T) {
-	values := slices.Values([]int{1, 2, 3, 4, 5, 6})
-	assert.Equal(t, optval.Some(5), gi.Find(values, gi.Greater(4)))
-	assert.Equal(t, optval.None[int](), gi.Find(values, gi.Greater(6)))
+	gt4 := gi.Greater(4)
+	assert.True(t, gt4(5))
+	assert.False(t, gt4(4))
 }
 
 func TestGreaterOrEqual(t *testing.T) {
-	values := slices.Values([]int{1, 2, 3, 4, 5, 6})
-	assert.Equal(t, optval.Some(5), gi.Find(values, gi.GreaterOrEqual(5)))
-	assert.Equal(t, optval.Some(6), gi.Find(values, gi.GreaterOrEqual(6)))
-	assert.Equal(t, optval.None[int](), gi.Find(values, gi.GreaterOrEqual(7)))
+	ge4 := gi.GreaterOrEqual(4)
+	assert.True(t, ge4(5))
+	assert.True(t, ge4(4))
+	assert.False(t, ge4(3))
 }
 
 func TestAnd(t *testing.T) {
-	values := slices.Values([]int{1, 2, 3, 4, 5, 6})
-	assert.Equal(t, optval.Some(4), gi.Find(values, gi.And(gi.Greater(3), gi.Less(5))))
-	assert.Equal(t, optval.None[int](), gi.Find(values, gi.And(gi.Greater(3), gi.Less(4))))
+	lt4 := gi.Less(4)
+	gt2 := gi.Greater(2)
+	assert.True(t, gi.And(lt4, gt2)(3))
+	assert.False(t, gi.And(lt4, gt2)(2))
+	assert.False(t, gi.And(lt4, gt2)(4))
 }
 
 func TestOr(t *testing.T) {
-	values := slices.Values([]int{1, 2, 3, 4, 5, 6})
-	assert.Equal(t, optval.Some(2), gi.Find(values, gi.Or(gi.Greater(3), gi.Even)))
-	assert.Equal(t, optval.Some(1), gi.Find(values, gi.Or(gi.Greater(4), gi.Odd)))
-	assert.Equal(t, optval.None[int](), gi.Find(values, gi.Or(gi.Greater(6), gi.Less(1))))
+	lt2 := gi.Less(2)
+	gt4 := gi.Greater(4)
+	assert.False(t, gi.Or(lt2, gt4)(3))
+	assert.False(t, gi.Or(lt2, gt4)(2))
+	assert.True(t, gi.Or(lt2, gt4)(1))
+	assert.True(t, gi.Or(lt2, gt4)(5))
 }
 
 func TestNot(t *testing.T) {
-	values := slices.Values([]int{1, 2, 3, 4, 5, 6})
-	assert.Equal(t, optval.Some(1), gi.Find(values, gi.Not(gi.Greater(1))))
-	assert.Equal(t, optval.None[int](), gi.Find(values, gi.Not(gi.Greater(0))))
+	lt2 := gi.Less(2)
+	assert.True(t, gi.Not(lt2)(3))
+	assert.False(t, gi.Not(lt2)(1))
 }
 
 func TestEven(t *testing.T) {
-	values := slices.Values([]int{1, 2, 3, 4, 5, 6})
-	assert.Equal(t, optval.Some(2), gi.Find(values, gi.Even))
-	values = slices.Values([]int{1, 3, 5})
-	assert.Equal(t, optval.None[int](), gi.Find(values, gi.Even))
+	assert.True(t, gi.Even(2))
+	assert.False(t, gi.Even(3))
 }
 
 func TestOdd(t *testing.T) {
-	values := slices.Values([]int{1, 2, 3, 4, 5, 6})
-	assert.Equal(t, optval.Some(1), gi.Find(values, gi.Odd))
-	values = slices.Values([]int{2, 3, 4, 5, 6})
-	assert.Equal(t, optval.Some(3), gi.Find(values, gi.Odd))
-	values = slices.Values([]int{2, 4, 6})
-	assert.Equal(t, optval.None[int](), gi.Find(values, gi.Odd))
+	assert.True(t, gi.Odd(3))
+	assert.False(t, gi.Odd(2))
 }
 
 func TestDivisibleBy(t *testing.T) {
-	values := slices.Values([]int{1, 2, 3, 4, 5, 6})
-	assert.Equal(t, optval.Some(3), gi.Find(values, gi.DivisibleBy(3)))
-	assert.Equal(t, optval.None[int](), gi.Find(values, gi.DivisibleBy(7)))
+	div2 := gi.DivisibleBy(2)
+	assert.True(t, div2(4))
+	assert.False(t, div2(3))
 }
 
 func TestIn(t *testing.T) {
 	set1 := []int{4, 2, 7}
 	set2 := []int{8, 0, 9}
-	values := slices.Values([]int{1, 2, 3, 4, 5, 6})
-	assert.Equal(t, optval.Some(2), gi.Find(values, gi.In(set1)))
-	assert.Equal(t, optval.None[int](), gi.Find(values, gi.In(set2)))
+	inSet1 := gi.In(set1)
+	inSet2 := gi.In(set2)
+	assert.True(t, inSet1(4))
+	assert.False(t, inSet1(3))
+	assert.True(t, inSet2(0))
+	assert.False(t, inSet2(3))
 }
 
 func TestOneOf(t *testing.T) {
-	values := slices.Values([]int{1, 2, 3, 4, 5, 6})
-	assert.Equal(t, optval.Some(3), gi.Find(values, gi.OneOf(5, 4, 3)))
-	assert.Equal(t, optval.None[int](), gi.Find(values, gi.OneOf(0, 8, -1)))
+	oneOf123 := gi.OneOf(1, 2, 3)
+	assert.False(t, oneOf123(0))
+	assert.True(t, oneOf123(1))
+	assert.True(t, oneOf123(2))
+	assert.True(t, oneOf123(3))
+	assert.False(t, oneOf123(4))
 }
 
 func TestIsZero(t *testing.T) {
-	values := slices.Values([]int{1, 2, 3, 0, 4, 5, 6})
-	assert.Equal(t, optval.Some(0), gi.Find(values, gi.IsZero))
-	assert.Equal(t, optval.Some(1), gi.Find(values, gi.Not[int](gi.IsZero)))
+	assert.True(t, gi.IsZero(0))
+	assert.False(t, gi.IsZero(1))
+	assert.True(t, gi.IsZero(0.0))
+	assert.False(t, gi.IsZero(0.1))
+	assert.True(t, gi.IsZero(struct{}{}))
+	assert.True(t, gi.IsZero(struct{ int }{}))
+	assert.False(t, gi.IsZero(struct{ int }{3}))
 }
 
 func TestIsNotZero(t *testing.T) {
-	values := slices.Values([]int{1, 2, 3, 0, 4, 5, 6})
-	assert.Equal(t, optval.Some(1), gi.Find(values, gi.IsNotZero))
-	assert.Equal(t, optval.Some(0), gi.Find(values, gi.Not[int](gi.IsNotZero)))
+	assert.False(t, gi.IsNotZero(0))
+	assert.True(t, gi.IsNotZero(1))
+	assert.False(t, gi.IsNotZero(0.0))
+	assert.True(t, gi.IsNotZero(0.1))
+	assert.False(t, gi.IsNotZero(struct{}{}))
+	assert.False(t, gi.IsNotZero(struct{ int }{}))
+	assert.True(t, gi.IsNotZero(struct{ int }{3}))
 }
