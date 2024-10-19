@@ -5,9 +5,9 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 
 	"github.com/pamburus/go-mod/gi"
-	"github.com/pamburus/go-mod/optional/optval"
 )
 
 func TestReduce(t *testing.T) {
@@ -18,8 +18,9 @@ func TestReduce(t *testing.T) {
 			return acc + v
 		}
 
-		result := gi.Reduce(values, accumulator)
-		assert.Equal(t, optval.Some(45), result)
+		result, ok := gi.Reduce(values, accumulator)
+		require.True(t, ok)
+		assert.Equal(t, 45, result)
 	})
 
 	t.Run("Product", func(t *testing.T) {
@@ -29,7 +30,8 @@ func TestReduce(t *testing.T) {
 			return acc * v
 		}
 
-		result := gi.Reduce(values, accumulator)
-		assert.Equal(t, optval.Some(362880), result)
+		result, ok := gi.Reduce(values, accumulator)
+		require.True(t, ok)
+		assert.Equal(t, 362880, result)
 	})
 }

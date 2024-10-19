@@ -2,20 +2,28 @@ package gi
 
 import (
 	"iter"
-
-	"github.com/pamburus/go-mod/optional/optval"
 )
 
 // Reduce reduces the values to a value which is the accumulated result of running accumulate function
 // on each element where each successive invocation is supplied the return value of the previous one.
 //
-// Reduce returns [optval.None] if the sequence is empty.
-func Reduce[V any, F ~func(V, V) V](values iter.Seq[V], accumulate F) optval.Value[V] {
-	return Fold(values, optval.None[V](), func(r optval.Value[V], v V) optval.Value[V] {
-		if rv, ok := r.Unwrap(); ok {
-			return optval.Some(accumulate(rv, v))
+// It returns zero value and false if the sequence is empty.
+func Reduce[V any, F ~func(V, V) V](values iter.Seq[V], accumulate F) (V, bool) {
+	type opt struct {
+		value V
+		valid bool
+	}
+
+	result := Fold(values, opt{}, func(result opt, value V) opt {
+		if result.valid {
+			return opt{
+				value: accumulate(result.value, value),
+				valid: true,
+			}
 		}
 
-		return optval.Some(v)
+		return opt{value, true}
 	})
+
+	return result.value, result.valid
 }

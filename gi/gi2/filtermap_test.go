@@ -8,19 +8,18 @@ import (
 
 	"github.com/pamburus/go-mod/gi/gi2"
 	"github.com/pamburus/go-mod/gi/internal/testing/helpers"
-	"github.com/pamburus/go-mod/optional/optpair"
 )
 
 func TestFilterMap(t *testing.T) {
 	empty := slices.All([]string{})
 	zeroToFour := slices.All([]string{"zero", "one", "two", "three", "four"})
 
-	evenNeg := func(i int, v string) optpair.Pair[int, string] {
+	evenNeg := func(i int, v string) (int, string, bool) {
 		if i%2 == 0 {
-			return optpair.Some(-i, v)
+			return -i, v, true
 		}
 
-		return optpair.None[int, string]()
+		return 0, "", false
 	}
 
 	assert.Equal(t,

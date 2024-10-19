@@ -8,7 +8,7 @@ import (
 
 // Contains returns true if the given pairs contain a pair matching the predicate.
 func Contains[V1, V2 any, P constraints.Predicate2[V1, V2]](pairs iter.Seq2[V1, V2], predicate P) bool {
-	return Find(pairs, predicate).IsSome()
+	return IsSome(Find(pairs, predicate))
 }
 
 // ContainsLeft returns true if the given pairs contain a pair with the first value matching the predicate.
