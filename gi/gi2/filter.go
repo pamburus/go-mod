@@ -8,11 +8,18 @@ import (
 
 // Filter returns an iterator adapter over pairs that uses a predicate to filter them.
 func Filter[V1, V2 any, P constraints.Predicate2[V1, V2]](pairs iter.Seq2[V1, V2], predicate P) iter.Seq2[V1, V2] {
-	return func(yield func(V1, V2) bool) {
-		for v1, v2 := range pairs {
-			if predicate(v1, v2) {
-				if !yield(v1, v2) {
-					return
+	return FilterWith(predicate)(pairs)
+}
+
+// FilterWith returns a function that filters an iterator sequence over pairs using a predicate.
+func FilterWith[V1, V2 any, P constraints.Predicate2[V1, V2]](predicate P) func(iter.Seq2[V1, V2]) iter.Seq2[V1, V2] {
+	return func(pairs iter.Seq2[V1, V2]) iter.Seq2[V1, V2] {
+		return func(yield func(V1, V2) bool) {
+			for v1, v2 := range pairs {
+				if predicate(v1, v2) {
+					if !yield(v1, v2) {
+						return
+					}
 				}
 			}
 		}
