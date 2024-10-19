@@ -1,4 +1,4 @@
-package giop2
+package gi2op
 
 import (
 	"math"
