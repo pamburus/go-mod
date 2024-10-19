@@ -29,7 +29,7 @@ func TestFilter(t *testing.T) {
 	expected := []int{3, 0, 9, 0}
 	assert.Equal(t, expected, result)
 
-	result = slices.Collect(helpers.FlattenPairs(helpers.LimitPairs(filtered, 1)))
+	result = slices.Collect(helpers.FlattenPairs(helpers.LimitPairs(1, filtered)))
 	expected = []int{3, 0}
 	assert.Equal(t, expected, result)
 }
@@ -46,7 +46,7 @@ func TestFilterLeft(t *testing.T) {
 	expected := []int{0, 10, 2, 30, 4, 50}
 	assert.Equal(t, expected, result)
 
-	result = slices.Collect(helpers.FlattenPairs(helpers.LimitPairs(filtered, 1)))
+	result = slices.Collect(helpers.FlattenPairs(helpers.LimitPairs(1, filtered)))
 	expected = []int{0, 10}
 	assert.Equal(t, expected, result)
 }
@@ -63,7 +63,7 @@ func TestFilterRight(t *testing.T) {
 	expected := []int{2, 30, 5, 60}
 	assert.Equal(t, expected, result)
 
-	result = slices.Collect(helpers.FlattenPairs(helpers.LimitPairs(filtered, 1)))
+	result = slices.Collect(helpers.FlattenPairs(helpers.LimitPairs(1, filtered)))
 	expected = []int{2, 30}
 	assert.Equal(t, expected, result)
 }
@@ -80,7 +80,7 @@ func TestFilterKeys(t *testing.T) {
 	expected := []int{0, 10, 3, 40}
 	assert.Equal(t, expected, result)
 
-	result = slices.Collect(helpers.FlattenPairs(helpers.LimitPairs(filtered, 1)))
+	result = slices.Collect(helpers.FlattenPairs(helpers.LimitPairs(1, filtered)))
 	expected = []int{0, 10}
 	assert.Equal(t, expected, result)
 }
@@ -97,7 +97,7 @@ func TestFilterValues(t *testing.T) {
 	expected := []int{2, 30, 5, 60}
 	assert.Equal(t, expected, result)
 
-	result = slices.Collect(helpers.FlattenPairs(helpers.LimitPairs(filtered, 1)))
+	result = slices.Collect(helpers.FlattenPairs(helpers.LimitPairs(1, filtered)))
 	expected = []int{2, 30}
 	assert.Equal(t, expected, result)
 }

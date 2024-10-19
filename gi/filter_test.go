@@ -22,7 +22,7 @@ func TestFilter(t *testing.T) {
 	expected := []int{2, 4, 6, 8, 0}
 	assert.Equal(t, expected, result)
 
-	result = slices.Collect(helpers.Limit(gi.Filter(values, predicate), 3))
+	result = slices.Collect(helpers.Limit(3, gi.Filter(values, predicate)))
 	expected = []int{2, 4, 6}
 	assert.Equal(t, expected, result)
 

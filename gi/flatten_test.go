@@ -17,7 +17,7 @@ func TestFlattenBy(t *testing.T) {
 		result := gi.FlattenBy(values, slices.Values)
 
 		assert.Equal(t, []int{1, 2, 3, 4, 5, 6}, slices.Collect(result))
-		assert.Equal(t, []int{1, 2, 3}, slices.Collect(helpers.Limit(result, 3)))
+		assert.Equal(t, []int{1, 2, 3}, slices.Collect(helpers.Limit(3, result)))
 	})
 
 	t.Run("Single", func(t *testing.T) {
