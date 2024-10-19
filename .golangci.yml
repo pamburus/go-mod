@@ -75,7 +75,7 @@ issues:
     - path: '^gi/giop/(min|max)\.go$'
       linters:
         - dupl
-    - path: '^gi/giop2/(min|max)\.go$'
+    - path: '^gi/gi2op/(min|max)\.go$'
       linters:
         - dupl
     - path: '^gi/(min|max)\.go$'

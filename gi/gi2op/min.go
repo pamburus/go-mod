@@ -1,4 +1,4 @@
-package giop2
+package gi2op
 
 import (
 	"github.com/pamburus/go-mod/gi/constraints"
