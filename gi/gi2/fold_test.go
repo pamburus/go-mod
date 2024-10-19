@@ -9,7 +9,7 @@ import (
 	"github.com/pamburus/go-mod/gi/gi2"
 )
 
-func TestFold1(t *testing.T) {
+func TestFoldPack(t *testing.T) {
 	t.Run("Sum", func(t *testing.T) {
 		pairs := slices.All([]int{1, 2, 3, 4, 5, 6, 7, 8, 9})
 
@@ -17,7 +17,7 @@ func TestFold1(t *testing.T) {
 			return acc + v1 + v2
 		}
 
-		result := gi2.Fold1(pairs, 0, accumulator)
+		result := gi2.FoldPack(pairs, 0, accumulator)
 		assert.Equal(t, 81, result)
 	})
 
@@ -28,12 +28,12 @@ func TestFold1(t *testing.T) {
 			return acc + v1*v2
 		}
 
-		result := gi2.Fold1(pairs, 0, accumulator)
+		result := gi2.FoldPack(pairs, 0, accumulator)
 		assert.Equal(t, 240, result)
 	})
 }
 
-func TestFold2(t *testing.T) {
+func TestFold(t *testing.T) {
 	t.Run("Sum", func(t *testing.T) {
 		pairs := slices.All([]int{1, 2, 3, 4, 5, 6, 7, 8, 9})
 
@@ -41,7 +41,7 @@ func TestFold2(t *testing.T) {
 			return acc1 + v1, acc2 + v2
 		}
 
-		result1, result2 := gi2.Fold2(pairs, 0, 0, accumulator)
+		result1, result2 := gi2.Fold(pairs, 0, 0, accumulator)
 		assert.Equal(t, 36, result1)
 		assert.Equal(t, 45, result2)
 	})
@@ -53,7 +53,7 @@ func TestFold2(t *testing.T) {
 			return acc1 + v1, acc2 * v2
 		}
 
-		result1, result2 := gi2.Fold2(pairs, 0, 1, accumulator)
+		result1, result2 := gi2.Fold(pairs, 0, 1, accumulator)
 		assert.Equal(t, 36, result1)
 		assert.Equal(t, 362880, result2)
 	})

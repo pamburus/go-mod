@@ -14,13 +14,13 @@ func Chunk[V1, V2 any, I constraints.Integer](pairs iter.Seq2[V1, V2], size I) i
 		v2 V2
 	}
 
-	fold := PairFoldWith(func(v1 V1, v2 V2) pair {
+	pack := PackWith(func(v1 V1, v2 V2) pair {
 		return pair{v1, v2}
 	})
 
-	unfold := PairUnfoldWith(func(p pair) (V1, V2) {
+	unpack := UnpackWith(func(p pair) (V1, V2) {
 		return p.v1, p.v2
 	})
 
-	return gi.Map(gi.Chunk(fold(pairs), size), unfold)
+	return gi.Map(gi.Chunk(pack(pairs), size), unpack)
 }
