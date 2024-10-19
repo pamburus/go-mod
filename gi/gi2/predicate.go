@@ -1,6 +1,10 @@
 package gi2
 
-import "github.com/pamburus/go-mod/gi/constraints"
+import (
+	"iter"
+
+	"github.com/pamburus/go-mod/gi/constraints"
+)
 
 // Equal returns a predicate that returns true in case its arguments are equal to the values v1 and v2.
 func Equal[V1, V2 comparable](v1 V1, v2 V2) func(V1, V2) bool {
@@ -98,4 +102,18 @@ func IsZero[V1, V2 comparable](v1 V1, v2 V2) bool {
 // IsNotZero returns true if any of the values is not zero.
 func IsNotZero[V1, V2 comparable](v1 V1, v2 V2) bool {
 	return !IsZero(v1, v2)
+}
+
+// Each returns a predicate that returns true only in case all of the pairs match the predicate.
+func Each[V1, V2 any, P constraints.Predicate2[V1, V2]](predicate P) func(iter.Seq2[V1, V2]) bool {
+	return func(pairs iter.Seq2[V1, V2]) bool {
+		return !Contains(pairs, Not(predicate))
+	}
+}
+
+// Any returns a predicate that returns true in case any of the pairs match the predicate.
+func Any[V1, V2 any, P constraints.Predicate2[V1, V2]](predicate P) func(iter.Seq2[V1, V2]) bool {
+	return func(pairs iter.Seq2[V1, V2]) bool {
+		return Contains(pairs, predicate)
+	}
 }

@@ -1,6 +1,7 @@
 package gi
 
 import (
+	"iter"
 	"slices"
 
 	"github.com/pamburus/go-mod/gi/constraints"
@@ -120,4 +121,20 @@ func IsZero[T comparable](value T) bool {
 // IsNotZero returns true if the value is not equal to the zero value of its type.
 func IsNotZero[T comparable](value T) bool {
 	return !IsZero(value)
+}
+
+// Each returns a predicate that takes a sequence of values and returns true
+// in case all of the values in the sequence satisfy the given predicate.
+func Each[T any, F constraints.Predicate[T]](predicate F) func(iter.Seq[T]) bool {
+	return func(values iter.Seq[T]) bool {
+		return Every(values, predicate)
+	}
+}
+
+// Any returns a predicate that takes a sequence of values and returns true
+// in case any of the values in the sequence satisfy the given predicate.
+func Any[T any, F constraints.Predicate[T]](predicate F) func(iter.Seq[T]) bool {
+	return func(values iter.Seq[T]) bool {
+		return Contains(values, predicate)
+	}
 }
