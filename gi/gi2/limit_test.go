@@ -13,7 +13,7 @@ import (
 func TestLimit(t *testing.T) {
 	pairs := slices.All([]int{2, 4, 6, 8})
 
-	limited := gi2.Limit(pairs, 2)
+	limited := gi2.Limit(2, pairs)
 	result := maps.Collect(limited)
 	expected := map[int]int{
 		0: 2,
@@ -26,7 +26,7 @@ func TestLimit(t *testing.T) {
 func TestLimitEarlyExit(t *testing.T) {
 	pairs := slices.All([]int{2, 4, 6, 8})
 
-	limited := gi2.Limit(pairs, 2)
+	limited := gi2.Limit(2, pairs)
 	result := map[int]int{}
 
 	for k, v := range limited {

@@ -12,7 +12,7 @@ import (
 func TestLimit(t *testing.T) {
 	values := slices.Values([]int{1, 2, 3, 4, 5})
 
-	limited := gi.Limit(values, 3)
+	limited := gi.Limit(3, values)
 	result := slices.Collect(limited)
 
 	expected := []int{1, 2, 3}
@@ -22,7 +22,7 @@ func TestLimit(t *testing.T) {
 func TestLimitEarlyExit(t *testing.T) {
 	values := slices.Values([]int{1, 2, 3, 4, 5})
 
-	limited := gi.Limit(values, 3)
+	limited := gi.Limit(3, values)
 	result := []int{}
 
 	for v := range limited {
