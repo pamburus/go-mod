@@ -1,3 +1,2 @@
-// Package gi2 provides a set of helpers for working with generic iterators over pairs of values.
-// The idiomatic way to represent such an iterator is to use [iter.Seq2][T1, T2] type.
+// Package gi2 provides a set of generic iterator combinators over pairs of values [iter.Seq2].
 package gi2

@@ -1,2 +1,2 @@
-// Package gi2opt provides a set of generic iterator combinators over [iter.Seq2] interacting with optional pairs from package [optpair].
+// Package gi2opt provides a set of generic iterator combinators over pairs of values [iter.Seq] adapted for [optpair.Pair].
 package gi2opt
