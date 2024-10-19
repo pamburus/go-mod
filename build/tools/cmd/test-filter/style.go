@@ -112,14 +112,14 @@ var styleSettings = []styling.Setting{
 		),
 	),
 	styling.NewSetting(
-		`^ {8}\t {12}\t- .*$`,
+		`^ {8}\t {12}\t-.*$`,
 		styling.NewStyle(
 			styling.NewSequence(sgr.SetForegroundColor(sgr.Blue)),
 			styling.NewSequence(sgr.ResetAll),
 		),
 	),
 	styling.NewSetting(
-		`^ {8}\t {12}\t\+ .*$`,
+		`^ {8}\t {12}\t\+.*$`,
 		styling.NewStyle(
 			styling.NewSequence(sgr.SetForegroundColor(sgr.Red)),
 			styling.NewSequence(sgr.ResetAll),
