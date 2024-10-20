@@ -10,6 +10,8 @@ import (
 
 	"github.com/pamburus/go-mod/database/sql/qb"
 	"github.com/pamburus/go-mod/database/sql/qb/qxpgx"
+	"github.com/pamburus/go-mod/gi"
+	"github.com/pamburus/go-mod/result"
 )
 
 func TestPGXStd(t *testing.T) {
@@ -56,19 +58,24 @@ func TestPGX(t *testing.T) {
 			qb.NotEqual(qb.Column("type"), qb.Arg("connection")),
 		))
 
-	for result, err := range db.Query(ctx, query) {
+	for resultSet, err := range db.Query(ctx, query) {
 		if err != nil {
 			t.Fatal(err)
 		}
 
-		t.Log(result.Columns())
+		t.Log(resultSet.Columns())
 
 		var id string
 		var version int
 		var typ string
 		var checksum sql.NullString
 
-		for row, err := range result.Rows() {
+		for i, row := range gi.Enumerate(result.FromSeq2(resultSet.Rows())) {
+			row, err := row.Unwrap()
+			if err != nil {
+				t.Fatal(err)
+			}
+
 			err = row.Scan(&id, &version, &typ, &checksum)
 			if err != nil {
 				t.Fatal(err)
@@ -78,7 +85,54 @@ func TestPGX(t *testing.T) {
 				checksum.String = "<NULL>"
 			}
 
-			t.Log(id, version, typ, checksum.String)
+			t.Log("#", i, id, version, typ, checksum.String)
+		}
+	}
+
+	query = qb.Select(qb.Raw("now()"))
+
+	for result, err := range db.Query(ctx, query) {
+		if err != nil {
+			t.Fatal(err)
+		}
+
+		t.Log(result.Columns())
+		fields := make([]any, len(result.Columns()))
+		ptr := make([]any, len(result.Columns()))
+		for i := range fields {
+			ptr[i] = &fields[i]
+		}
+
+		for row, err := range result.Rows() {
+			err = row.Scan(ptr...)
+			if err != nil {
+				t.Fatal(err)
+			}
+
+			t.Log(fields...)
 		}
 	}
 }
+
+// ---
+
+type jointStatement struct {
+	statements []qb.Statement
+}
+
+func (j jointStatement) BuildStatement(b qb.Builder, options qb.StatementOptions) error {
+	for _, statement := range j.statements {
+		err := statement.BuildStatement(b, options)
+		if err != nil {
+			return err
+		}
+
+		b.AppendString(";\n")
+	}
+
+	return nil
+}
+
+// ---
+
+var _ qb.Statement = jointStatement{}

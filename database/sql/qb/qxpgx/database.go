@@ -13,12 +13,13 @@ import (
 )
 
 func New(connection Connection) qx.Database {
-	return &database{connection}
+	return &database{qx.DatabaseStub{}, connection}
 }
 
 // ---
 
 type database struct {
+	qx.DatabaseStub
 	connection Connection
 }
 
@@ -39,7 +40,7 @@ func (d *database) Exec(ctx context.Context, statement qb.Statement) (sql.Result
 func (d *database) Query(ctx context.Context, statement qb.Statement) iter.Seq2[qx.Result, error] {
 	fail := func(err error) iter.Seq2[qx.Result, error] {
 		return func(yield func(qx.Result, error) bool) {
-			yield(errResult{err}, err)
+			yield(qx.ErrResult(err), err)
 		}
 	}
 
@@ -62,12 +63,12 @@ func (d *database) Query(ctx context.Context, statement qb.Statement) iter.Seq2[
 				columns = append(columns, string(field.Name))
 			}
 
-			yield(result{rows, columns}, nil)
+			yield(result{qx.ResultStub{}, rows, columns}, nil)
 
 			return nil
 		}()
 		if err != nil {
-			yield(errResult{err}, err)
+			yield(qx.ErrResult(err), err)
 		}
 	}
 
@@ -76,7 +77,7 @@ func (d *database) Query(ctx context.Context, statement qb.Statement) iter.Seq2[
 func (d *database) QueryRow(ctx context.Context, statement qb.Statement) qx.Row {
 	sql, args, err := d.build(statement)
 	if err != nil {
-		return errRow{err}
+		return qx.ErrRow(err)
 	}
 
 	return d.connection.QueryRow(ctx, sql, args...)
@@ -141,6 +142,7 @@ func (r errResult) Rows() iter.Seq2[qx.Row, error] {
 // ---
 
 type result struct {
+	qx.ResultStub
 	rows    pgx.Rows
 	columns []string
 }

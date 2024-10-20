@@ -72,10 +72,6 @@ func (s SelectStatement) BuildFromItem(b Builder, options FromItemOptions) error
 }
 
 func (s SelectStatement) BuildStatement(b Builder, _ StatementOptions) error {
-	if len(s.from) == 0 {
-		return errors.New("no FROM items")
-	}
-
 	b.AppendString("SELECT")
 
 	for i, item := range s.what {
@@ -90,16 +86,18 @@ func (s SelectStatement) BuildStatement(b Builder, _ StatementOptions) error {
 		}
 	}
 
-	b.AppendString(" FROM ")
+	if len(s.from) != 0 {
+		b.AppendString(" FROM ")
 
-	for i, item := range s.from {
-		if i > 0 {
-			b.AppendString(", ")
-		}
+		for i, item := range s.from {
+			if i > 0 {
+				b.AppendString(", ")
+			}
 
-		err := item.BuildFromItem(b, optSelectFrom)
-		if err != nil {
-			return err
+			err := item.BuildFromItem(b, optSelectFrom)
+			if err != nil {
+				return err
+			}
 		}
 	}
 
