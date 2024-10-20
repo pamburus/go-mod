@@ -14,25 +14,65 @@ import (
 	"github.com/pamburus/go-mod/database/sql/qb"
 )
 
+// queryBuilderInterface is a subset of the qb.Builder interface that is supported by this package.
+type queryBuilderInterface interface {
+	AppendByte(byte)
+	AppendString(string)
+	AppendArg(any) error
+	AppendRawExpr(expr string, args ...any) error
+}
+
+// ---
+
+func newQueryBuilder() queryBuilder {
+	return queryBuilder{Builder: qb.BuilderStub()}
+}
+
+// ---
+
 // queryBuilder is a  queryBuilder for SQL query.
 type queryBuilder struct {
+	qb.Builder
+	queryBuilderImpl
+}
+
+func (b *queryBuilder) AppendByte(val byte) {
+	b.queryBuilderImpl.AppendByte(val)
+}
+
+func (b *queryBuilder) AppendString(val string) {
+	b.queryBuilderImpl.AppendString(val)
+}
+
+func (b *queryBuilder) AppendArg(arg any) error {
+	return b.queryBuilderImpl.AppendArg(arg)
+}
+
+func (b *queryBuilder) AppendRawExpr(expr string, args ...any) error {
+	return b.queryBuilderImpl.AppendRawExpr(expr, args...)
+}
+
+// ---
+
+// queryBuilder is a  queryBuilder for SQL query.
+type queryBuilderImpl struct {
 	sql   strings.Builder
 	args  []any
 	named pgx.StrictNamedArgs
 }
 
 // AppendByte appends a byte to the SQL query.
-func (b *queryBuilder) AppendByte(val byte) {
+func (b *queryBuilderImpl) AppendByte(val byte) {
 	_ = b.sql.WriteByte(val)
 }
 
 // AppendString appends a string to the SQL query.
-func (b *queryBuilder) AppendString(val string) {
+func (b *queryBuilderImpl) AppendString(val string) {
 	_, _ = b.sql.WriteString(val)
 }
 
 // AppendArg appends an argument to the SQL query.
-func (b *queryBuilder) AppendArg(arg any) error {
+func (b *queryBuilderImpl) AppendArg(arg any) error {
 	var named iter.Seq2[string, any]
 
 	switch arg := arg.(type) {
@@ -59,7 +99,7 @@ func (b *queryBuilder) AppendArg(arg any) error {
 }
 
 // AppendArg appends an argument to the SQL query.
-func (b *queryBuilder) AppendRawExpr(expr string, args ...any) error {
+func (b *queryBuilderImpl) AppendRawExpr(expr string, args ...any) error {
 	b.AppendString(expr)
 
 	for _, arg := range args {
@@ -90,7 +130,7 @@ func (b *queryBuilder) AppendRawExpr(expr string, args ...any) error {
 }
 
 // Result returns the SQL query and its arguments.
-func (b *queryBuilder) Result() (string, []any) {
+func (b *queryBuilderImpl) Result() (string, []any) {
 	args := slices.Clip(b.args)
 	if len(b.named) > 0 {
 		args = []any{b.named}
@@ -99,7 +139,7 @@ func (b *queryBuilder) Result() (string, []any) {
 	return b.sql.String(), args
 }
 
-func (b *queryBuilder) appendNamedArg(name string, value any, placeholder bool) error {
+func (b *queryBuilderImpl) appendNamedArg(name string, value any, placeholder bool) error {
 	if len(b.args) != 0 {
 		return ErrMixingNamedAndPositionalArgsNotAllowed
 	}
@@ -118,7 +158,7 @@ func (b *queryBuilder) appendNamedArg(name string, value any, placeholder bool) 
 	return nil
 }
 
-func (b *queryBuilder) appendPositionalArg(value any, placeholder bool) error {
+func (b *queryBuilderImpl) appendPositionalArg(value any, placeholder bool) error {
 	if len(b.named) != 0 {
 		return ErrMixingNamedAndPositionalArgsNotAllowed
 	}
@@ -134,4 +174,8 @@ func (b *queryBuilder) appendPositionalArg(value any, placeholder bool) error {
 
 // ---
 
-var _ qb.Builder = &queryBuilder{}
+var (
+	_ queryBuilderInterface = qb.Builder(nil)
+	_ queryBuilderInterface = &queryBuilderImpl{}
+	_ qb.Builder            = &queryBuilder{}
+)

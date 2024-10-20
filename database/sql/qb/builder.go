@@ -17,4 +17,41 @@ type Builder interface {
 	// The placeholders are replaced with the arguments in the order they are provided.
 	// The format of the placeholders is implementation dependent, so using arguments in this method is not portable.
 	AppendRawExpr(expr string, args ...any) error
+
+	sealed()
 }
+
+// BuilderStub returns a stub implementation of Builder.
+func BuilderStub() Builder {
+	return builderStubInstance
+}
+
+// ---
+
+var builderStubInstance = &builderStub{}
+
+// ---
+
+type builderStub struct{}
+
+func (builderStub) AppendByte(byte) {
+	panic(ErrNotImplemented)
+}
+
+func (builderStub) AppendString(string) {
+	panic(ErrNotImplemented)
+}
+
+func (builderStub) AppendArg(any) error {
+	return ErrNotImplemented
+}
+
+func (builderStub) AppendRawExpr(string, ...any) error {
+	return ErrNotImplemented
+}
+
+func (builderStub) sealed() {}
+
+// ---
+
+var _ Builder = builderStub{}

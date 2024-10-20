@@ -122,7 +122,7 @@ func (t *transactionImpl) Transact(ctx context.Context, fn func(context.Context,
 }
 
 func (t *transactionImpl) build(query qb.Query) (string, []any, error) {
-	var b queryBuilder
+	b := newQueryBuilder()
 	err := query.BuildQuery(&b, qb.DefaultQueryOptions())
 	if err != nil {
 		return "", nil, err
