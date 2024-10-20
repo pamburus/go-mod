@@ -6,11 +6,15 @@ A collection of useful go modules.
 
 - [gi](gi/README.md)
 
-    Provides helpers for generic iterators.
+    Provides generic iterator combinators.
 
 - [optional](optional/README.md)
 
-    Provides provides a way to represent optional values in Go.
+    Provides a way to represent optional values.
+
+- [result](result/README.md)
+
+    Provides a way to represent a generic result that can be either a success with a value or an error.
 
 [doc-img]: https://pkg.go.dev/badge/github.com/pamburus/go-mod
 [doc]: https://pkg.go.dev/github.com/pamburus/go-mod

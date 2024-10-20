@@ -1,6 +1,6 @@
 # optional [![GoDoc][doc-img]][doc] [![Build Status][ci-img]][ci] [![Coverage Status][cov-img]][cov]
 
-Module optional provides a way to represent optional values in Go.
+Module `optional` provides a way to represent optional values.
 
 [doc-img]: https://pkg.go.dev/badge/github.com/pamburus/go-mod/optional
 [doc]: https://pkg.go.dev/github.com/pamburus/go-mod/optional
