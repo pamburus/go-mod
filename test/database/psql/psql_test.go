@@ -56,25 +56,29 @@ func TestPGX(t *testing.T) {
 			qb.NotEqual(qb.Column("type"), qb.Arg("connection")),
 		))
 
-	for row, err := range db.Query(ctx, query) {
+	for result, err := range db.Query(ctx, query) {
 		if err != nil {
 			t.Fatal(err)
 		}
+
+		t.Log(result.Columns())
 
 		var id string
 		var version int
 		var typ string
 		var checksum sql.NullString
 
-		err = row.Scan(&id, &version, &typ, &checksum)
-		if err != nil {
-			t.Fatal(err)
-		}
+		for row, err := range result.Rows() {
+			err = row.Scan(&id, &version, &typ, &checksum)
+			if err != nil {
+				t.Fatal(err)
+			}
 
-		if !checksum.Valid {
-			checksum.String = "<NULL>"
-		}
+			if !checksum.Valid {
+				checksum.String = "<NULL>"
+			}
 
-		t.Log(id, version, typ, checksum.String)
+			t.Log(id, version, typ, checksum.String)
+		}
 	}
 }

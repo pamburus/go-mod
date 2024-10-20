@@ -10,7 +10,7 @@ import (
 
 type Database interface {
 	Exec(ctx context.Context, statement qb.Statement) (sql.Result, error)
-	Query(ctx context.Context, statement qb.Statement) iter.Seq2[Row, error]
+	Query(ctx context.Context, statement qb.Statement) iter.Seq2[Result, error]
 	QueryRow(ctx context.Context, statement qb.Statement) Row
 }
 
@@ -18,4 +18,8 @@ type Row interface {
 	Scan(dest ...any) error
 }
 
-type CloseFunc func()
+type Result interface {
+	sql.Result
+	Columns() []string
+	Rows() iter.Seq2[Row, error]
+}
