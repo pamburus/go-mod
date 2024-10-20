@@ -4,6 +4,7 @@ import (
 	"context"
 	"database/sql"
 	"testing"
+	"time"
 
 	"github.com/jackc/pgx/v5/pgxpool"
 	_ "github.com/jackc/pgx/v5/stdlib"
@@ -56,7 +57,8 @@ func TestPGX(t *testing.T) {
 		From(qb.Table("feature")).
 		Where(qb.And(
 			qb.NotEqual(qb.Column("id"), qb.Arg("aa")),
-			qb.NotEqual(qb.Column("type"), qb.Arg("connection")),
+			qb.Equal(qb.Column("type"), qb.Arg("connection")),
+			qb.Less(qb.Column("version"), qb.Arg(2)),
 		))
 
 	for resultSet, err := range db.Query(ctx, query) {
@@ -88,12 +90,21 @@ func TestPGX(t *testing.T) {
 	err = db.Transact(ctx, func(ctx context.Context, tx qx.Transaction) error {
 		query = qb.Select(qb.Raw("now()"))
 
+		var now time.Time
+		err := tx.QueryRow(ctx, query).Scan(&now)
+		if err != nil {
+			return err
+		}
+		t.Log("Query run #1: now = ", now)
+
 		for result, err := range tx.Query(ctx, query) {
 			if err != nil {
 				t.Fatal(err)
 			}
 
-			t.Log(result.Columns())
+			t.Log("Query run #2")
+			t.Log("Columns:", result.Columns())
+
 			fields := make([]any, len(result.Columns()))
 			ptr := make([]any, len(result.Columns()))
 			for i := range fields {
