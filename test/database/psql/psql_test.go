@@ -10,8 +10,8 @@ import (
 	_ "github.com/jackc/pgx/v5/stdlib"
 
 	"github.com/pamburus/go-mod/database/sql/qb"
-	"github.com/pamburus/go-mod/database/sql/qb/qx"
-	"github.com/pamburus/go-mod/database/sql/qb/qxpgx"
+	"github.com/pamburus/go-mod/database/sql/qx"
+	"github.com/pamburus/go-mod/database/sql/qxpgx"
 	"github.com/pamburus/go-mod/gi"
 	"github.com/pamburus/go-mod/gi/gi2"
 )

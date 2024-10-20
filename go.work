@@ -3,6 +3,8 @@ go 1.23.1
 use (
 	./build/tools
 	./database/sql/qb
+	./database/sql/qx
+	./database/sql/qxpgx
 	./gi
 	./optional
 	./result

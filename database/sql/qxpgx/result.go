@@ -6,7 +6,7 @@ import (
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgconn"
 
-	"github.com/pamburus/go-mod/database/sql/qb/qx"
+	"github.com/pamburus/go-mod/database/sql/qx"
 )
 
 // ---

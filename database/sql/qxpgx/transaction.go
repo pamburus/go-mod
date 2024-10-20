@@ -8,8 +8,8 @@ import (
 	"github.com/jackc/pgx/v5"
 
 	"github.com/pamburus/go-mod/database/sql/qb"
-	"github.com/pamburus/go-mod/database/sql/qb/qx"
-	"github.com/pamburus/go-mod/database/sql/qb/qxpgx/backend"
+	"github.com/pamburus/go-mod/database/sql/qx"
+	"github.com/pamburus/go-mod/database/sql/qxpgx/backend"
 )
 
 // transactionInterface is a subset of qx.Transaction that is implemented in this package.
