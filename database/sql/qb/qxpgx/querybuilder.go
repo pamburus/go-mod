@@ -59,7 +59,9 @@ func (b *queryBuilder) AppendArg(arg any) error {
 }
 
 // AppendArg appends an argument to the SQL query.
-func (b *queryBuilder) AppendRawArgs(args ...any) error {
+func (b *queryBuilder) AppendRawExpr(expr string, args ...any) error {
+	b.AppendString(expr)
+
 	for _, arg := range args {
 		var named iter.Seq2[string, any]
 

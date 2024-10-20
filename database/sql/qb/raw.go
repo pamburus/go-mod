@@ -36,9 +36,7 @@ func (r RawExpression) BuildQuery(b Builder, options QueryOptions) error {
 
 func (r RawExpression) build(b Builder, options AliasOptions) error {
 	build := func(b Builder) error {
-		b.AppendString(r.sql)
-
-		return b.AppendRawArgs(r.args...)
+		return b.AppendRawExpr(r.sql, r.args...)
 	}
 
 	return as{build, r.alias, options}.build(b)
