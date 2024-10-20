@@ -30,7 +30,6 @@ func newQueryBuilder() queryBuilder {
 
 // ---
 
-// queryBuilder is a  queryBuilder for SQL query.
 type queryBuilder struct {
 	qb.Builder
 	queryBuilderImpl
@@ -54,24 +53,20 @@ func (b *queryBuilder) AppendRawExpr(expr string, args ...any) error {
 
 // ---
 
-// queryBuilder is a  queryBuilder for SQL query.
 type queryBuilderImpl struct {
 	sql   strings.Builder
 	args  []any
 	named pgx.StrictNamedArgs
 }
 
-// AppendByte appends a byte to the SQL query.
 func (b *queryBuilderImpl) AppendByte(val byte) {
 	_ = b.sql.WriteByte(val)
 }
 
-// AppendString appends a string to the SQL query.
 func (b *queryBuilderImpl) AppendString(val string) {
 	_, _ = b.sql.WriteString(val)
 }
 
-// AppendArg appends an argument to the SQL query.
 func (b *queryBuilderImpl) AppendArg(arg any) error {
 	var named iter.Seq2[string, any]
 
@@ -98,7 +93,6 @@ func (b *queryBuilderImpl) AppendArg(arg any) error {
 	return nil
 }
 
-// AppendArg appends an argument to the SQL query.
 func (b *queryBuilderImpl) AppendRawExpr(expr string, args ...any) error {
 	b.AppendString(expr)
 
@@ -129,14 +123,13 @@ func (b *queryBuilderImpl) AppendRawExpr(expr string, args ...any) error {
 	return nil
 }
 
-// Result returns the SQL query and its arguments.
-func (b *queryBuilderImpl) Result() (string, []any) {
+func (b *queryBuilderImpl) result() (string, []any, error) {
 	args := slices.Clip(b.args)
 	if len(b.named) > 0 {
 		args = []any{b.named}
 	}
 
-	return b.sql.String(), args
+	return b.sql.String(), args, nil
 }
 
 func (b *queryBuilderImpl) appendNamedArg(name string, value any, placeholder bool) error {

@@ -128,7 +128,7 @@ func (t *transactionImpl) build(query qb.Query) (string, []any, error) {
 		return "", nil, err
 	}
 
-	return b.sql.String(), b.args, nil
+	return b.result()
 }
 
 // ---
