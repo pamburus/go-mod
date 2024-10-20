@@ -12,11 +12,6 @@ type Builder interface {
 	AppendArg(any)
 }
 
-// Expression is an abstract SQL expression.
-type Expression interface {
-	BuildExpression(Builder) error
-}
-
 // Statement is an abstract SQL statement.
 type Statement interface {
 	BuildStatement(Builder) error

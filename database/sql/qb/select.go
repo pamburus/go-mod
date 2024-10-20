@@ -27,7 +27,7 @@ type SelectStatement struct {
 }
 
 func (s SelectStatement) From(items ...FromItem) SelectStatement {
-	s.from = append(s.from, items...)
+	s.from = items
 
 	return s
 }
@@ -67,7 +67,7 @@ func (s SelectStatement) BuildStatement(b Builder) error {
 				b.AppendString(", ")
 			}
 
-			err := item.BuildExpression(b)
+			err := item.Build(b, selectWhatOptionsInstance)
 			if err != nil {
 				return err
 			}
@@ -108,4 +108,18 @@ func (s SelectStatement) BuildStatement(b Builder) error {
 	}
 
 	return nil
+}
+
+// ---
+
+var selectWhatOptionsInstance = &selectWhatOptions{}
+
+// ---
+
+type selectWhatOptions struct {
+	defaultExpressionOptions
+}
+
+func (*selectWhatOptions) AliasApplicable() bool {
+	return true
 }

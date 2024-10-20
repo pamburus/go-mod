@@ -1,15 +1,25 @@
 package qb
 
-type Table struct {
-	Name string
+func Table(name string) TableBuilder {
+	return TableBuilder{name: name}
 }
 
-func (t Table) BuildFromItem(b Builder) error {
-	b.AppendString(t.Name)
+// ---
+
+type TableBuilder struct {
+	name string
+}
+
+func (t TableBuilder) Column(name string) ColumnBuilder {
+	return ColumnBuilder{name: name, table: t}
+}
+
+func (t TableBuilder) BuildFromItem(b Builder) error {
+	b.AppendString(t.name)
 
 	return nil
 }
 
 // ---
 
-var _ FromItem = Table{}
+var _ FromItem = TableBuilder{}
