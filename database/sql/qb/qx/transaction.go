@@ -25,36 +25,41 @@ type Transaction interface {
 	sealedTransaction()
 }
 
-// ---
-// TransactionStub is a stub implementation of Transaction that returns "not implemented" error in all methods.
-type TransactionStub struct{}
+// TransactionStub returns a stub implementation of Transaction.
+func TransactionStub() Transaction {
+	return transactionStubInstance
+}
 
-// Exec returns "not implemented" error.
-func (TransactionStub) Exec(context.Context, qb.Query) (sql.Result, error) {
+// ---
+
+var transactionStubInstance = &transactionStub{}
+
+// ---
+
+type transactionStub struct{}
+
+func (transactionStub) Exec(context.Context, qb.Query) (sql.Result, error) {
 	return nil, errNotImplemented
 }
 
-// Query returns "not implemented" error.
-func (TransactionStub) Query(context.Context, qb.Query) iter.Seq2[Result, error] {
+func (transactionStub) Query(context.Context, qb.Query) iter.Seq2[Result, error] {
 	return func(yield func(Result, error) bool) {
-		yield(ResultStub{}, errNotImplemented)
+		yield(ResultStub(), errNotImplemented)
 	}
 }
 
-// QueryRow returns "not implemented" error.
-func (TransactionStub) QueryRow(context.Context, qb.Query) Row {
+func (transactionStub) QueryRow(context.Context, qb.Query) Row {
 	return errRow{errNotImplemented}
 }
 
-// Transact returns "not implemented" error.
-func (TransactionStub) Transact(context.Context, func(context.Context, Transaction) error) error {
+func (transactionStub) Transact(context.Context, func(context.Context, Transaction) error) error {
 	return errNotImplemented
 }
 
-func (TransactionStub) sealedTransaction() {}
+func (transactionStub) sealedTransaction() {}
 
 // ---
 
 var (
-	_ Transaction = TransactionStub{}
+	_ Transaction = transactionStub{}
 )

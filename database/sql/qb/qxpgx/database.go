@@ -14,7 +14,7 @@ import (
 
 func New(connection backend.Connection) qx.Database {
 	return &database{
-		qx.DatabaseStub{},
+		qx.DatabaseStub(),
 		databaseImpl{
 			connection,
 			transactionImpl{connection},
@@ -36,7 +36,7 @@ type databaseInterface interface {
 // ---
 
 type database struct {
-	qx.DatabaseStub
+	qx.Database
 	databaseImpl
 }
 

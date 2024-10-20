@@ -23,13 +23,13 @@ type transactionInterface interface {
 // ---
 
 func newTransaction(connection backend.Transaction) *transaction {
-	return &transaction{qx.TransactionStub{}, transactionImpl{connection}}
+	return &transaction{qx.TransactionStub(), transactionImpl{connection}}
 }
 
 // ---
 
 type transaction struct {
-	qx.TransactionStub
+	qx.Transaction
 	transactionImpl
 }
 
@@ -95,7 +95,7 @@ func (t *transactionImpl) Query(ctx context.Context, query qb.Query) iter.Seq2[q
 				columns = append(columns, string(field.Name))
 			}
 
-			yield(result{qx.ResultStub{}, rows, columns}, nil)
+			yield(result{qx.ResultStub(), rows, columns}, nil)
 
 			return nil
 		}()

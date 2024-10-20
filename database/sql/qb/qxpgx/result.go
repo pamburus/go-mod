@@ -23,42 +23,8 @@ func (r sqlResult) LastInsertId() (int64, error) {
 
 // ---
 
-type errRow struct {
-	err error
-}
-
-func (r errRow) Scan(...any) error {
-	return r.err
-}
-
-// ---
-
-type errResult struct {
-	err error
-}
-
-func (r errResult) LastInsertId() (int64, error) {
-	return 0, r.err
-}
-
-func (r errResult) RowsAffected() (int64, error) {
-	return 0, r.err
-}
-
-func (errResult) Columns() []string {
-	return nil
-}
-
-func (r errResult) Rows() iter.Seq2[qx.Row, error] {
-	return func(yield func(qx.Row, error) bool) {
-		yield(errRow{r.err}, r.err)
-	}
-}
-
-// ---
-
 type result struct {
-	qx.ResultStub
+	qx.Result
 	rows    pgx.Rows
 	columns []string
 }

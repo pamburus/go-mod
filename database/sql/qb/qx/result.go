@@ -34,32 +34,36 @@ func ErrRow(err error) Row {
 	return errRow{err}
 }
 
+// ResultStub returns a stub implementation of Result.
+func ResultStub() Result {
+	return resultStubInstance
+}
+
 // ---
 
-// ResultStub is a stub implementation of Result that returns "not implemented" error in all methods.
-type ResultStub struct{}
+var resultStubInstance = &resultStub{}
 
-// LastInsertId returns "not implemented" error.
-func (ResultStub) LastInsertId() (int64, error) {
+// ---
+
+type resultStub struct{}
+
+func (resultStub) LastInsertId() (int64, error) {
 	return 0, errNotImplemented
 }
 
-// RowsAffected returns "not implemented" error.
-func (ResultStub) RowsAffected() (int64, error) {
+func (resultStub) RowsAffected() (int64, error) {
 	return 0, errNotImplemented
 }
 
-// Columns returns nil.
-func (ResultStub) Columns() []string {
-	return nil
+func (resultStub) Columns() []string {
+	panic(errNotImplemented)
 }
 
-// Rows returns "not implemented" error.
-func (ResultStub) Rows() iter.Seq2[Row, error] {
+func (resultStub) Rows() iter.Seq2[Row, error] {
 	return errResult{errNotImplemented}.Rows()
 }
 
-func (ResultStub) sealed() {}
+func (resultStub) sealed() {}
 
 // ---
 
@@ -100,6 +104,7 @@ func (s errRow) Scan(...any) error {
 // ---
 
 var (
-	_ Result = ResultStub{}
+	_ Result = resultStub{}
+	_ Result = errResult{}
 	_ Row    = errRow{}
 )

@@ -17,18 +17,27 @@ type Database interface {
 
 // ---
 
-// DatabaseStub is a stub implementation of Database that returns "not implemented" error in all methods.
-type DatabaseStub struct{ TransactionStub }
+// DatabaseStub returns a stub implementation of Database.
+func DatabaseStub() Database {
+	return databaseStubInstance
+}
 
-// TransactWithOptions returns "not implemented" error.
-func (DatabaseStub) TransactWithOptions(context.Context, sql.TxOptions, func(context.Context, Transaction) error) error {
+// ---
+
+var databaseStubInstance = &databaseStub{}
+
+// ---
+
+type databaseStub struct{ transactionStub }
+
+func (databaseStub) TransactWithOptions(context.Context, sql.TxOptions, func(context.Context, Transaction) error) error {
 	return errNotImplemented
 }
 
-func (DatabaseStub) sealedDatabase() {}
+func (databaseStub) sealedDatabase() {}
 
 // ---
 
 var (
-	_ Database = DatabaseStub{}
+	_ Database = databaseStub{}
 )
