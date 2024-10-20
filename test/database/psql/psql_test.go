@@ -9,9 +9,10 @@ import (
 	_ "github.com/jackc/pgx/v5/stdlib"
 
 	"github.com/pamburus/go-mod/database/sql/qb"
+	"github.com/pamburus/go-mod/database/sql/qb/qx"
 	"github.com/pamburus/go-mod/database/sql/qb/qxpgx"
 	"github.com/pamburus/go-mod/gi"
-	"github.com/pamburus/go-mod/result"
+	"github.com/pamburus/go-mod/gi/gi2"
 )
 
 func TestPGXStd(t *testing.T) {
@@ -70,12 +71,7 @@ func TestPGX(t *testing.T) {
 		var typ string
 		var checksum sql.NullString
 
-		for i, row := range gi.Enumerate(result.FromSeq2(resultSet.Rows())) {
-			row, err := row.Unwrap()
-			if err != nil {
-				t.Fatal(err)
-			}
-
+		for i, row := range gi.Enumerate(gi2.Left(resultSet.Rows())) {
 			err = row.Scan(&id, &version, &typ, &checksum)
 			if err != nil {
 				t.Fatal(err)
@@ -89,28 +85,35 @@ func TestPGX(t *testing.T) {
 		}
 	}
 
-	query = qb.Select(qb.Raw("now()"))
+	err = db.Transact(ctx, func(ctx context.Context, tx qx.Transaction) error {
+		query = qb.Select(qb.Raw("now()"))
 
-	for result, err := range db.Query(ctx, query) {
-		if err != nil {
-			t.Fatal(err)
-		}
-
-		t.Log(result.Columns())
-		fields := make([]any, len(result.Columns()))
-		ptr := make([]any, len(result.Columns()))
-		for i := range fields {
-			ptr[i] = &fields[i]
-		}
-
-		for row, err := range result.Rows() {
-			err = row.Scan(ptr...)
+		for result, err := range tx.Query(ctx, query) {
 			if err != nil {
 				t.Fatal(err)
 			}
 
-			t.Log(fields...)
+			t.Log(result.Columns())
+			fields := make([]any, len(result.Columns()))
+			ptr := make([]any, len(result.Columns()))
+			for i := range fields {
+				ptr[i] = &fields[i]
+			}
+
+			for row, err := range result.Rows() {
+				err = row.Scan(ptr...)
+				if err != nil {
+					t.Fatal(err)
+				}
+
+				t.Log(fields...)
+			}
 		}
+
+		return nil
+	})
+	if err != nil {
+		t.Fatal(err)
 	}
 }
 

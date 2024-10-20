@@ -10,9 +10,10 @@ import (
 
 	"github.com/pamburus/go-mod/database/sql/qb"
 	"github.com/pamburus/go-mod/database/sql/qb/qx"
+	"github.com/pamburus/go-mod/database/sql/qb/qxpgx/backend"
 )
 
-func New(connection Connection) qx.Database {
+func New(connection backend.Connection) qx.Database {
 	return &database{qx.DatabaseStub{}, connection}
 }
 
@@ -20,10 +21,66 @@ func New(connection Connection) qx.Database {
 
 type database struct {
 	qx.DatabaseStub
-	connection Connection
+	connection backend.Connection
 }
 
 func (d *database) Exec(ctx context.Context, statement qb.Statement) (sql.Result, error) {
+	return d.tx().Exec(ctx, statement)
+}
+
+func (d *database) Query(ctx context.Context, statement qb.Statement) iter.Seq2[qx.Result, error] {
+	return d.tx().Query(ctx, statement)
+}
+
+func (d *database) QueryRow(ctx context.Context, statement qb.Statement) qx.Row {
+	return d.tx().QueryRow(ctx, statement)
+}
+
+func (d *database) Transact(ctx context.Context, fn func(context.Context, qx.Transaction) error) error {
+	return d.tx().Transact(ctx, fn)
+}
+
+func (d *database) TransactWithOptions(ctx context.Context, opts sql.TxOptions, fn func(context.Context, qx.Transaction) error) error {
+	var innerOpts pgx.TxOptions
+
+	switch opts.Isolation {
+	case sql.LevelDefault:
+		break
+	case sql.LevelSerializable:
+		innerOpts.IsoLevel = pgx.Serializable
+	case sql.LevelRepeatableRead:
+		innerOpts.IsoLevel = pgx.RepeatableRead
+	case sql.LevelReadCommitted:
+		innerOpts.IsoLevel = pgx.ReadCommitted
+	case sql.LevelReadUncommitted:
+		innerOpts.IsoLevel = pgx.ReadUncommitted
+	default:
+		return errUnsupportedIsolationLevel(opts.Isolation)
+	}
+
+	if opts.ReadOnly {
+		innerOpts.AccessMode = pgx.ReadOnly
+	} else {
+		innerOpts.AccessMode = pgx.ReadWrite
+	}
+
+	return pgx.BeginTxFunc(ctx, d.connection, innerOpts, func(tx pgx.Tx) error {
+		return fn(ctx, &transaction{qx.TransactionStub{}, tx})
+	})
+}
+
+func (d *database) tx() *transaction {
+	return &transaction{qx.TransactionStub{}, d.connection}
+}
+
+// ---
+
+type transaction struct {
+	qx.TransactionStub
+	connection backend.Transaction
+}
+
+func (d *transaction) Exec(ctx context.Context, statement qb.Statement) (sql.Result, error) {
 	sql, args, err := d.build(statement)
 	if err != nil {
 		return nil, err
@@ -37,7 +94,7 @@ func (d *database) Exec(ctx context.Context, statement qb.Statement) (sql.Result
 	return sqlResult(commandTag), nil
 }
 
-func (d *database) Query(ctx context.Context, statement qb.Statement) iter.Seq2[qx.Result, error] {
+func (d *transaction) Query(ctx context.Context, statement qb.Statement) iter.Seq2[qx.Result, error] {
 	fail := func(err error) iter.Seq2[qx.Result, error] {
 		return func(yield func(qx.Result, error) bool) {
 			yield(qx.ErrResult(err), err)
@@ -74,7 +131,7 @@ func (d *database) Query(ctx context.Context, statement qb.Statement) iter.Seq2[
 
 }
 
-func (d *database) QueryRow(ctx context.Context, statement qb.Statement) qx.Row {
+func (d *transaction) QueryRow(ctx context.Context, statement qb.Statement) qx.Row {
 	sql, args, err := d.build(statement)
 	if err != nil {
 		return qx.ErrRow(err)
@@ -83,7 +140,13 @@ func (d *database) QueryRow(ctx context.Context, statement qb.Statement) qx.Row 
 	return d.connection.QueryRow(ctx, sql, args...)
 }
 
-func (d *database) build(statement qb.Statement) (string, []any, error) {
+func (d *transaction) Transact(ctx context.Context, fn func(context.Context, qx.Transaction) error) error {
+	return pgx.BeginFunc(ctx, d.connection, func(tx pgx.Tx) error {
+		return fn(ctx, &transaction{qx.TransactionStub{}, tx})
+	})
+}
+
+func (d *transaction) build(statement qb.Statement) (string, []any, error) {
 	var b queryBuilder
 	err := statement.BuildStatement(&b, qb.DefaultStatementOptions())
 	if err != nil {

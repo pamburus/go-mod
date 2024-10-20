@@ -11,8 +11,6 @@ github.com/jackc/puddle/v2 v2.2.2 h1:PR8nw+E/1w0GLuRFSmiioY6UooMp6KJv0/61nB7icHo
 github.com/jackc/puddle/v2 v2.2.2/go.mod h1:vriiEXHvEE654aYKXXjOvZM39qJ0q+azkZFrfEOc3H4=
 github.com/pamburus/go-mod/gi v0.5.0 h1:d1Rrg9Y/QTI4OyH9enZzwKUoEcvvSXp9R2TZfBAGFGM=
 github.com/pamburus/go-mod/gi v0.5.0/go.mod h1:YQgCgSUlg2pTLAvheQF75jmlnOD2DR5krqrE8T1Xv6g=
-github.com/pamburus/go-mod/result v0.1.1 h1:olYcEKj8GM6mQGH7iMjL2HbWr9CrzXPiL5N1x0UJHSI=
-github.com/pamburus/go-mod/result v0.1.1/go.mod h1:qfig9hH6zMBv6kuscn7vrb8ktcVyGaFIuOsWdrirpaQ=
 github.com/pmezard/go-difflib v1.0.0 h1:4DBwDE0NGyQoBHbLQYPwSUPoCMWR5BEzIk/f1lZbAQM=
 github.com/pmezard/go-difflib v1.0.0/go.mod h1:iKH77koFhYxTK1pcRnkKkqfTogsbg7gZNVY4sRDYZ/4=
 github.com/stretchr/objx v0.1.0/go.mod h1:HFkY916IF+rwdDfMAkV7OtwuqBVzrE8GR6GFx+wExME=

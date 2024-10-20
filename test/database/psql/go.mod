@@ -6,7 +6,6 @@ require (
 	github.com/jackc/pgx/v5 v5.7.1
 	github.com/pamburus/go-mod/database/sql/qb v0.0.0-00010101000000-000000000000
 	github.com/pamburus/go-mod/gi v0.5.0
-	github.com/pamburus/go-mod/result v0.1.1
 )
 
 require (
