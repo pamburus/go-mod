@@ -1,4 +1,4 @@
-package qbpgx
+package qxpgx
 
 import (
 	"database/sql"
@@ -10,34 +10,29 @@ import (
 	"strings"
 
 	"github.com/jackc/pgx/v5"
+
 	"github.com/pamburus/go-mod/database/sql/qb"
 )
 
-func NewBuilder() *Builder {
-	return &Builder{
-		named: make(pgx.StrictNamedArgs),
-	}
-}
-
-// Builder is a  builder for SQL query.
-type Builder struct {
+// queryBuilder is a  queryBuilder for SQL query.
+type queryBuilder struct {
 	sql   strings.Builder
 	args  []any
 	named pgx.StrictNamedArgs
 }
 
 // AppendByte appends a byte to the SQL query.
-func (b *Builder) AppendByte(val byte) {
+func (b *queryBuilder) AppendByte(val byte) {
 	_ = b.sql.WriteByte(val)
 }
 
 // AppendString appends a string to the SQL query.
-func (b *Builder) AppendString(val string) {
+func (b *queryBuilder) AppendString(val string) {
 	_, _ = b.sql.WriteString(val)
 }
 
 // AppendArg appends an argument to the SQL query.
-func (b *Builder) AppendArg(arg any) error {
+func (b *queryBuilder) AppendArg(arg any) error {
 	var named iter.Seq2[string, any]
 
 	switch arg := arg.(type) {
@@ -64,7 +59,7 @@ func (b *Builder) AppendArg(arg any) error {
 }
 
 // AppendArg appends an argument to the SQL query.
-func (b *Builder) AppendRawArgs(args ...any) error {
+func (b *queryBuilder) AppendRawArgs(args ...any) error {
 	for _, arg := range args {
 		var named iter.Seq2[string, any]
 
@@ -93,7 +88,7 @@ func (b *Builder) AppendRawArgs(args ...any) error {
 }
 
 // Result returns the SQL query and its arguments.
-func (b *Builder) Result() (string, []any) {
+func (b *queryBuilder) Result() (string, []any) {
 	args := slices.Clip(b.args)
 	if len(b.named) > 0 {
 		args = []any{b.named}
@@ -102,7 +97,7 @@ func (b *Builder) Result() (string, []any) {
 	return b.sql.String(), args
 }
 
-func (b *Builder) appendNamedArg(name string, value any, placeholder bool) error {
+func (b *queryBuilder) appendNamedArg(name string, value any, placeholder bool) error {
 	if len(b.args) != 0 {
 		return ErrMixingNamedAndPositionalArgsNotAllowed
 	}
@@ -121,7 +116,7 @@ func (b *Builder) appendNamedArg(name string, value any, placeholder bool) error
 	return nil
 }
 
-func (b *Builder) appendPositionalArg(value any, placeholder bool) error {
+func (b *queryBuilder) appendPositionalArg(value any, placeholder bool) error {
 	if len(b.named) != 0 {
 		return ErrMixingNamedAndPositionalArgsNotAllowed
 	}
@@ -137,4 +132,4 @@ func (b *Builder) appendPositionalArg(value any, placeholder bool) error {
 
 // ---
 
-var _ qb.Builder = &Builder{}
+var _ qb.Builder = &queryBuilder{}
