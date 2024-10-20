@@ -8,7 +8,7 @@ import (
 	"github.com/jackc/pgx/v5/pgxpool"
 )
 
-type Connection interface {
+type Database interface {
 	Transaction
 	BeginTx(context.Context, pgx.TxOptions) (pgx.Tx, error)
 }
@@ -24,7 +24,7 @@ type Transaction interface {
 // ---
 
 var (
-	_ Connection  = &pgx.Conn{}
-	_ Connection  = &pgxpool.Pool{}
+	_ Database    = &pgx.Conn{}
+	_ Database    = &pgxpool.Pool{}
 	_ Transaction = pgx.Tx(nil)
 )

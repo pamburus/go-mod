@@ -22,8 +22,8 @@ type transactionInterface interface {
 
 // ---
 
-func newTransaction(connection backend.Transaction) *transaction {
-	return &transaction{qx.TransactionStub(), transactionImpl{connection}}
+func newTransaction(backend backend.Transaction) *transaction {
+	return &transaction{qx.TransactionStub(), transactionImpl{backend}}
 }
 
 // ---
@@ -52,7 +52,7 @@ func (t *transaction) Transact(ctx context.Context, fn func(context.Context, qx.
 // ---
 
 type transactionImpl struct {
-	connection backend.Transaction
+	backend backend.Transaction
 }
 
 func (t *transactionImpl) Exec(ctx context.Context, query qb.Query) (sql.Result, error) {
@@ -61,7 +61,7 @@ func (t *transactionImpl) Exec(ctx context.Context, query qb.Query) (sql.Result,
 		return nil, err
 	}
 
-	commandTag, err := t.connection.Exec(ctx, sql, args...)
+	commandTag, err := t.backend.Exec(ctx, sql, args...)
 	if err != nil {
 		return nil, err
 	}
@@ -83,7 +83,7 @@ func (t *transactionImpl) Query(ctx context.Context, query qb.Query) iter.Seq2[q
 
 	return func(yield func(qx.Result, error) bool) {
 		err := func() error {
-			rows, err := t.connection.Query(ctx, sql, args...)
+			rows, err := t.backend.Query(ctx, sql, args...)
 			if err != nil {
 				return err
 			}
@@ -112,11 +112,11 @@ func (t *transactionImpl) QueryRow(ctx context.Context, query qb.Query) qx.Row {
 		return qx.ErrRow(err)
 	}
 
-	return t.connection.QueryRow(ctx, sql, args...)
+	return t.backend.QueryRow(ctx, sql, args...)
 }
 
 func (t *transactionImpl) Transact(ctx context.Context, fn func(context.Context, qx.Transaction) error) error {
-	return pgx.BeginFunc(ctx, t.connection, func(tx pgx.Tx) error {
+	return pgx.BeginFunc(ctx, t.backend, func(tx pgx.Tx) error {
 		return fn(ctx, newTransaction(tx))
 	})
 }

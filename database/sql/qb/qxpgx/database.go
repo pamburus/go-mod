@@ -12,12 +12,12 @@ import (
 	"github.com/pamburus/go-mod/database/sql/qb/qxpgx/backend"
 )
 
-func New(connection backend.Connection) qx.Database {
+func New(backend backend.Database) qx.Database {
 	return &database{
 		qx.DatabaseStub(),
 		databaseImpl{
-			connection,
-			transactionImpl{connection},
+			backend,
+			transactionImpl{backend},
 		},
 	}
 }
@@ -63,7 +63,7 @@ func (d *database) TransactWithOptions(ctx context.Context, opts sql.TxOptions, 
 // ---
 
 type databaseImpl struct {
-	connection backend.Connection
+	backend backend.Database
 	transactionImpl
 }
 
@@ -91,7 +91,7 @@ func (d *databaseImpl) TransactWithOptions(ctx context.Context, opts sql.TxOptio
 		innerOpts.AccessMode = pgx.ReadWrite
 	}
 
-	return pgx.BeginTxFunc(ctx, d.connection, innerOpts, func(tx pgx.Tx) error {
+	return pgx.BeginTxFunc(ctx, d.backend, innerOpts, func(tx pgx.Tx) error {
 		return fn(ctx, newTransaction(tx))
 	})
 }
