@@ -4,6 +4,10 @@ func Column(name string) ColumnRef {
 	return ColumnRef{name: name}
 }
 
+func AllColumns() ColumnRef {
+	return Column("*")
+}
+
 // ---
 
 type ColumnRef struct {

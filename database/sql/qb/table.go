@@ -15,6 +15,10 @@ func (t TableRef) Column(name string) ColumnRef {
 	return ColumnRef{name: name, table: t}
 }
 
+func (t TableRef) AllColumns() ColumnRef {
+	return AllColumns().Table(t.name)
+}
+
 func (t TableRef) As(alias string) TableRef {
 	t.alias = alias
 

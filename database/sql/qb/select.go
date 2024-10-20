@@ -5,13 +5,13 @@ import (
 	"strconv"
 )
 
-func Select(what ...Expression) SelectQuery {
-	return SelectQuery{what: what}
+func Select(what ...Expression) SelectCommand {
+	return SelectCommand{what: what}
 }
 
 // ---
 
-type SelectQuery struct {
+type SelectCommand struct {
 	what  []Expression
 	from  []FromItem
 	where Condition
@@ -20,19 +20,19 @@ type SelectQuery struct {
 	alias string
 }
 
-func (s SelectQuery) From(items ...FromItem) SelectQuery {
+func (s SelectCommand) From(items ...FromItem) SelectCommand {
 	s.from = items
 
 	return s
 }
 
-func (s SelectQuery) Where(condition Condition) SelectQuery {
+func (s SelectCommand) Where(condition Condition) SelectCommand {
 	s.where = And(s.where, condition)
 
 	return s
 }
 
-func (s SelectQuery) OrderBy(options ...OrderOption) SelectQuery {
+func (s SelectCommand) OrderBy(options ...OrderOption) SelectCommand {
 	for _, option := range options {
 		option(&s.order)
 	}
@@ -40,19 +40,19 @@ func (s SelectQuery) OrderBy(options ...OrderOption) SelectQuery {
 	return s
 }
 
-func (s SelectQuery) Limit(n int) SelectQuery {
+func (s SelectCommand) Limit(n int) SelectCommand {
 	s.limit = n
 
 	return s
 }
 
-func (s SelectQuery) As(alias string) SelectQuery {
+func (s SelectCommand) As(alias string) SelectCommand {
 	s.alias = alias
 
 	return s
 }
 
-func (s SelectQuery) BuildFromItem(b Builder, options FromItemOptions) error {
+func (s SelectCommand) BuildFromItem(b Builder, options FromItemOptions) error {
 	build := func(b Builder) error {
 		b.AppendByte('(')
 		err := s.BuildQuery(b, DefaultQueryOptions())
@@ -71,7 +71,7 @@ func (s SelectQuery) BuildFromItem(b Builder, options FromItemOptions) error {
 	return as{build, s.alias, options}.build(b)
 }
 
-func (s SelectQuery) BuildQuery(b Builder, _ QueryOptions) error {
+func (s SelectCommand) BuildQuery(b Builder, _ QueryOptions) error {
 	b.AppendString("SELECT")
 
 	for i, item := range s.what {
@@ -152,6 +152,6 @@ var (
 )
 
 var (
-	_ Query    = SelectQuery{}
-	_ FromItem = SelectQuery{}
+	_ Query    = SelectCommand{}
+	_ FromItem = SelectCommand{}
 )

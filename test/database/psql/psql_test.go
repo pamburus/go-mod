@@ -53,7 +53,7 @@ func TestPGX(t *testing.T) {
 
 	db := qxpgx.New(pool)
 
-	query := qb.Select(qb.Star()).
+	query := qb.Select(qb.AllColumns()).
 		From(qb.Table("feature")).
 		Where(qb.And(
 			qb.NotEqual(qb.Column("id"), qb.Arg("aa")),
