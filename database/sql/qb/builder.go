@@ -1,22 +1,28 @@
 package qb
 
-import (
-	"database/sql"
-	"strings"
-)
-
 // Builder is an interface for building SQL queries.
 type Builder interface {
 	AppendByte(byte)
 	AppendString(string)
-	AppendArg(any)
+	AppendArg(any) error
+	AppendRawArgs(...any) error
+}
+
+// BuilderResult is an interface for the result of building a SQL query.
+type BuilderResult interface {
+	Result() (string, []any)
+}
+
+type BuilderWithResult interface {
+	Builder
+	BuilderResult
 }
 
 // Build builds the SQL query.
-func Build(q Statement) (string, []any, error) {
-	var b StandardBuilder
+func Build[F func() B, B BuilderWithResult](f F, q Statement) (string, []any, error) {
+	b := f()
 
-	err := q.BuildStatement(&b, DefaultStatementOptions())
+	err := q.BuildStatement(b, DefaultStatementOptions())
 	if err != nil {
 		return "", nil, err
 	}
@@ -24,40 +30,4 @@ func Build(q Statement) (string, []any, error) {
 	sql, args := b.Result()
 
 	return sql, args, nil
-}
-
-// ---
-
-// StandardBuilder is a standard builder for SQL query.
-type StandardBuilder struct {
-	sql  strings.Builder
-	args []any
-}
-
-// AppendByte appends a byte to the SQL query.
-func (b *StandardBuilder) AppendByte(val byte) {
-	_ = b.sql.WriteByte(val)
-}
-
-// AppendString appends a string to the SQL query.
-func (b *StandardBuilder) AppendString(val string) {
-	_, _ = b.sql.WriteString(val)
-}
-
-// AppendArg appends an argument to the SQL query.
-func (b *StandardBuilder) AppendArg(arg any) {
-	b.args = append(b.args, arg)
-
-	switch arg := arg.(type) {
-	case sql.NamedArg:
-		b.AppendByte('@')
-		b.AppendString(arg.Name)
-	default:
-		b.AppendByte('?')
-	}
-}
-
-// Result returns the SQL query and its arguments.
-func (b *StandardBuilder) Result() (string, []any) {
-	return b.sql.String(), b.args
 }

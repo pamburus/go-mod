@@ -1,6 +1,9 @@
 package qb
 
-import "errors"
+import (
+	"errors"
+	"strconv"
+)
 
 func Select(what ...Expression) SelectStatement {
 	return SelectStatement{what: what}
@@ -117,7 +120,7 @@ func (s SelectStatement) BuildStatement(b Builder, _ StatementOptions) error {
 
 	if s.limit != 0 {
 		b.AppendString(" LIMIT ")
-		b.AppendArg(s.limit)
+		b.AppendString(strconv.Itoa(s.limit))
 	}
 
 	return nil

@@ -6,4 +6,5 @@ use (
 	./gi
 	./optional
 	./result
+	./test/database/psql
 )
