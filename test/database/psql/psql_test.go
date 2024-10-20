@@ -131,12 +131,12 @@ func TestPGX(t *testing.T) {
 // ---
 
 type jointStatement struct {
-	statements []qb.Statement
+	statements []qb.Query
 }
 
-func (j jointStatement) BuildStatement(b qb.Builder, options qb.StatementOptions) error {
+func (j jointStatement) BuildQuery(b qb.Builder, options qb.QueryOptions) error {
 	for _, statement := range j.statements {
-		err := statement.BuildStatement(b, options)
+		err := statement.BuildQuery(b, options)
 		if err != nil {
 			return err
 		}
@@ -149,4 +149,4 @@ func (j jointStatement) BuildStatement(b qb.Builder, options qb.StatementOptions
 
 // ---
 
-var _ qb.Statement = jointStatement{}
+var _ qb.Query = jointStatement{}

@@ -5,13 +5,13 @@ import (
 	"strconv"
 )
 
-func Select(what ...Expression) SelectStatement {
-	return SelectStatement{what: what}
+func Select(what ...Expression) SelectQuery {
+	return SelectQuery{what: what}
 }
 
 // ---
 
-type SelectStatement struct {
+type SelectQuery struct {
 	what  []Expression
 	from  []FromItem
 	where Condition
@@ -20,19 +20,19 @@ type SelectStatement struct {
 	alias string
 }
 
-func (s SelectStatement) From(items ...FromItem) SelectStatement {
+func (s SelectQuery) From(items ...FromItem) SelectQuery {
 	s.from = items
 
 	return s
 }
 
-func (s SelectStatement) Where(condition Condition) SelectStatement {
+func (s SelectQuery) Where(condition Condition) SelectQuery {
 	s.where = And(s.where, condition)
 
 	return s
 }
 
-func (s SelectStatement) OrderBy(options ...OrderOption) SelectStatement {
+func (s SelectQuery) OrderBy(options ...OrderOption) SelectQuery {
 	for _, option := range options {
 		option(&s.order)
 	}
@@ -40,22 +40,22 @@ func (s SelectStatement) OrderBy(options ...OrderOption) SelectStatement {
 	return s
 }
 
-func (s SelectStatement) Limit(n int) SelectStatement {
+func (s SelectQuery) Limit(n int) SelectQuery {
 	s.limit = n
 
 	return s
 }
 
-func (s SelectStatement) As(alias string) SelectStatement {
+func (s SelectQuery) As(alias string) SelectQuery {
 	s.alias = alias
 
 	return s
 }
 
-func (s SelectStatement) BuildFromItem(b Builder, options FromItemOptions) error {
+func (s SelectQuery) BuildFromItem(b Builder, options FromItemOptions) error {
 	build := func(b Builder) error {
 		b.AppendByte('(')
-		err := s.BuildStatement(b, DefaultStatementOptions())
+		err := s.BuildQuery(b, DefaultQueryOptions())
 		if err != nil {
 			return err
 		}
@@ -71,7 +71,7 @@ func (s SelectStatement) BuildFromItem(b Builder, options FromItemOptions) error
 	return as{build, s.alias, options}.build(b)
 }
 
-func (s SelectStatement) BuildStatement(b Builder, _ StatementOptions) error {
+func (s SelectQuery) BuildQuery(b Builder, _ QueryOptions) error {
 	b.AppendString("SELECT")
 
 	for i, item := range s.what {
@@ -152,6 +152,6 @@ var (
 )
 
 var (
-	_ Statement = SelectStatement{}
-	_ FromItem  = SelectStatement{}
+	_ Query    = SelectQuery{}
+	_ FromItem = SelectQuery{}
 )

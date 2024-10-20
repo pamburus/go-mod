@@ -26,9 +26,9 @@ func New(connection backend.Connection) qx.Database {
 
 // databaseInterface is a subset of qx.Database that is implemented in this package.
 type databaseInterface interface {
-	Exec(context.Context, qb.Statement) (sql.Result, error)
-	Query(context.Context, qb.Statement) iter.Seq2[qx.Result, error]
-	QueryRow(context.Context, qb.Statement) qx.Row
+	Exec(context.Context, qb.Query) (sql.Result, error)
+	Query(context.Context, qb.Query) iter.Seq2[qx.Result, error]
+	QueryRow(context.Context, qb.Query) qx.Row
 	Transact(context.Context, func(context.Context, qx.Transaction) error) error
 	TransactWithOptions(context.Context, sql.TxOptions, func(context.Context, qx.Transaction) error) error
 }
@@ -40,16 +40,16 @@ type database struct {
 	databaseImpl
 }
 
-func (d *database) Exec(ctx context.Context, statement qb.Statement) (sql.Result, error) {
-	return d.databaseImpl.Exec(ctx, statement)
+func (d *database) Exec(ctx context.Context, query qb.Query) (sql.Result, error) {
+	return d.databaseImpl.Exec(ctx, query)
 }
 
-func (d *database) Query(ctx context.Context, statement qb.Statement) iter.Seq2[qx.Result, error] {
-	return d.databaseImpl.Query(ctx, statement)
+func (d *database) Query(ctx context.Context, query qb.Query) iter.Seq2[qx.Result, error] {
+	return d.databaseImpl.Query(ctx, query)
 }
 
-func (d *database) QueryRow(ctx context.Context, statement qb.Statement) qx.Row {
-	return d.databaseImpl.QueryRow(ctx, statement)
+func (d *database) QueryRow(ctx context.Context, query qb.Query) qx.Row {
+	return d.databaseImpl.QueryRow(ctx, query)
 }
 
 func (d *database) Transact(ctx context.Context, fn func(context.Context, qx.Transaction) error) error {

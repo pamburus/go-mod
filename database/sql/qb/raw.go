@@ -30,7 +30,7 @@ func (r RawExpression) BuildFromItem(b Builder, options FromItemOptions) error {
 	return r.build(b, options)
 }
 
-func (r RawExpression) BuildStatement(b Builder, options StatementOptions) error {
+func (r RawExpression) BuildQuery(b Builder, options QueryOptions) error {
 	return r.build(b, DefaultAliasOptions())
 }
 
@@ -50,5 +50,5 @@ var (
 	_ Expression = RawExpression{}
 	_ Condition  = RawExpression{}
 	_ FromItem   = RawExpression{}
-	_ Statement  = RawExpression{}
+	_ Query      = RawExpression{}
 )

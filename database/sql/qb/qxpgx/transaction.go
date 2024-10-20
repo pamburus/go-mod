@@ -14,9 +14,9 @@ import (
 
 // transactionInterface is a subset of qx.Transaction that is implemented in this package.
 type transactionInterface interface {
-	Exec(context.Context, qb.Statement) (sql.Result, error)
-	Query(context.Context, qb.Statement) iter.Seq2[qx.Result, error]
-	QueryRow(context.Context, qb.Statement) qx.Row
+	Exec(context.Context, qb.Query) (sql.Result, error)
+	Query(context.Context, qb.Query) iter.Seq2[qx.Result, error]
+	QueryRow(context.Context, qb.Query) qx.Row
 	Transact(context.Context, func(context.Context, qx.Transaction) error) error
 }
 
@@ -33,16 +33,16 @@ type transaction struct {
 	transactionImpl
 }
 
-func (t *transaction) Exec(ctx context.Context, statement qb.Statement) (sql.Result, error) {
-	return t.transactionImpl.Exec(ctx, statement)
+func (t *transaction) Exec(ctx context.Context, query qb.Query) (sql.Result, error) {
+	return t.transactionImpl.Exec(ctx, query)
 }
 
-func (t *transaction) Query(ctx context.Context, statement qb.Statement) iter.Seq2[qx.Result, error] {
-	return t.transactionImpl.Query(ctx, statement)
+func (t *transaction) Query(ctx context.Context, query qb.Query) iter.Seq2[qx.Result, error] {
+	return t.transactionImpl.Query(ctx, query)
 }
 
-func (t *transaction) QueryRow(ctx context.Context, statement qb.Statement) qx.Row {
-	return t.transactionImpl.QueryRow(ctx, statement)
+func (t *transaction) QueryRow(ctx context.Context, query qb.Query) qx.Row {
+	return t.transactionImpl.QueryRow(ctx, query)
 }
 
 func (t *transaction) Transact(ctx context.Context, fn func(context.Context, qx.Transaction) error) error {
@@ -55,8 +55,8 @@ type transactionImpl struct {
 	connection backend.Transaction
 }
 
-func (t *transactionImpl) Exec(ctx context.Context, statement qb.Statement) (sql.Result, error) {
-	sql, args, err := t.build(statement)
+func (t *transactionImpl) Exec(ctx context.Context, query qb.Query) (sql.Result, error) {
+	sql, args, err := t.build(query)
 	if err != nil {
 		return nil, err
 	}
@@ -69,14 +69,14 @@ func (t *transactionImpl) Exec(ctx context.Context, statement qb.Statement) (sql
 	return sqlResult(commandTag), nil
 }
 
-func (t *transactionImpl) Query(ctx context.Context, statement qb.Statement) iter.Seq2[qx.Result, error] {
+func (t *transactionImpl) Query(ctx context.Context, query qb.Query) iter.Seq2[qx.Result, error] {
 	fail := func(err error) iter.Seq2[qx.Result, error] {
 		return func(yield func(qx.Result, error) bool) {
 			yield(qx.ErrResult(err), err)
 		}
 	}
 
-	sql, args, err := t.build(statement)
+	sql, args, err := t.build(query)
 	if err != nil {
 		return fail(err)
 	}
@@ -106,8 +106,8 @@ func (t *transactionImpl) Query(ctx context.Context, statement qb.Statement) ite
 
 }
 
-func (t *transactionImpl) QueryRow(ctx context.Context, statement qb.Statement) qx.Row {
-	sql, args, err := t.build(statement)
+func (t *transactionImpl) QueryRow(ctx context.Context, query qb.Query) qx.Row {
+	sql, args, err := t.build(query)
 	if err != nil {
 		return qx.ErrRow(err)
 	}
@@ -121,9 +121,9 @@ func (t *transactionImpl) Transact(ctx context.Context, fn func(context.Context,
 	})
 }
 
-func (t *transactionImpl) build(statement qb.Statement) (string, []any, error) {
+func (t *transactionImpl) build(query qb.Query) (string, []any, error) {
 	var b queryBuilder
-	err := statement.BuildStatement(&b, qb.DefaultStatementOptions())
+	err := query.BuildQuery(&b, qb.DefaultQueryOptions())
 	if err != nil {
 		return "", nil, err
 	}
