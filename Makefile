@@ -77,6 +77,7 @@ coverage: $(modules:%=coverage/%)
 ## Show coverage for a module
 .PHONY: coverage/%
 coverage/%: test/%
+	@ ! test -f $*/.cover.exclude || ( cp $*/.cover.out $*/.cover.out.raw && grep -f $*/.cover.exclude -v $*/.cover.out.raw > $*/.cover.out && rm $*/.cover.out.raw )
 	$(go-tool-cover) -func=$*/.cover.out | $(coverage-filter) $(import-path)
 
 # ---
