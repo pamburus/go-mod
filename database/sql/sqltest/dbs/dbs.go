@@ -6,6 +6,18 @@ import (
 	"net/url"
 )
 
+type Starter interface {
+	Start(ctx context.Context) (Server, error)
+	WithPassword(string) Starter
+	WithPort(uint16) Starter
+}
+
+type Server interface {
+	URL() *url.URL
+	Database(DatabaseName) Database
+	Stop(context.Context) error
+}
+
 type Database interface {
 	URL() *url.URL
 	Open(context.Context) (*sql.DB, error)

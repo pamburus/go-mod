@@ -158,23 +158,17 @@ func setup(ctx context.Context, tb testing.TB, starter dbs.Starter) cloneFunc {
 	var debug atomic.Bool
 	debug.Store(envFlag("SQL_TEST_DEBUG"))
 
-	password := hashBase32(fnv.New64(), passwordSalt, []byte(tb.Name()))
-	port, err := freePort()
-	if err != nil {
-		tb.Fatalf("[sqltest] failed to allocate free port: %v", err)
-	}
-
-	tb.Logf("[sqltest] start database server on port %d", port)
-	server, err := starter.Start(ctx, port, password)
+	tb.Logf("[sqltest] start database server")
+	server, err := starter.Start(ctx)
 	if err != nil {
 		tb.Fatalf("[sqltest] failed to start database server: %v", err)
 	}
 
 	tb.Cleanup(func() {
-		tb.Logf("[sqltest] stop database server on port %d", port)
+		tb.Logf("[sqltest] stop database server at %s", server.URL())
 		err := server.Stop(ctx)
 		if err != nil {
-			tb.Logf("[sqltest] failed to stop database server: %v", err)
+			tb.Logf("[sqltest] failed to stop database server at %s: %v", server.URL(), err)
 		}
 	})
 

@@ -1,58 +1,38 @@
 package postgres
 
 import (
-	"context"
-	"fmt"
-	"os"
-	"os/exec"
+	"math/rand/v2"
+
+	"github.com/pamburus/go-mod/database/sql/sqltest/dbs/postgres/backend"
+	"github.com/pamburus/go-mod/database/sql/sqltest/dbs/postgres/backend/docker"
 )
 
-type Backend interface {
-	Start(ctx context.Context, port int, password string) (func(context.Context) error, error)
+func Docker() DockerBackendBuilder {
+	return DockerBackendBuilder{}
 }
 
 // ---
 
-func Docker(image string) Backend {
-	return dockerBackend{image}
+type DockerBackendBuilder struct {
+	options []docker.Option
+}
+
+func (b DockerBackendBuilder) WithImage(image string) DockerBackendBuilder {
+	b.options = append(b.options, docker.WithImage(image))
+
+	return b
+}
+
+func (b DockerBackendBuilder) WithRandSource(randSource rand.Source) DockerBackendBuilder {
+	b.options = append(b.options, docker.WithRandSource(randSource))
+
+	return b
+}
+
+func (b DockerBackendBuilder) New() Backend {
+	return docker.New(b.options...)
 }
 
 // ---
 
-type dockerBackend struct {
-	image string
-}
-
-func (b dockerBackend) Start(ctx context.Context, port int, password string) (func(context.Context) error, error) {
-	cmd := exec.Command(
-		"docker", "run",
-		"--rm",
-		"--name", fmt.Sprintf("sqltest-postgres-%d", port),
-		"-e", "POSTGRES_PASSWORD",
-		"-p", fmt.Sprintf("%d:5432", port),
-		b.image,
-	)
-	cmd.Env = append(cmd.Env, fmt.Sprintf("POSTGRES_PASSWORD=%s", password))
-	cmd.Stderr = os.Stderr
-
-	err := cmd.Start()
-	if err != nil {
-		return nil, err
-	}
-
-	stop := func(ctx context.Context) error {
-		err := cmd.Process.Signal(os.Interrupt)
-		if err != nil {
-			return fmt.Errorf("failed to send interrupt signal: %w", err)
-		}
-
-		_, err = cmd.Process.Wait()
-		if err != nil {
-			return fmt.Errorf("failed to wait for postgres container: %w", err)
-		}
-
-		return nil
-	}
-
-	return stop, nil
-}
+type Backend = backend.Backend
