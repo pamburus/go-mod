@@ -7,6 +7,7 @@ import (
 
 type Backend interface {
 	Start(context.Context, Options) (Server, StopFunc, error)
+	IntoBackend
 }
 
 type Server interface {
@@ -19,4 +20,8 @@ type StopFunc func(context.Context) error
 type Options struct {
 	Password string
 	Port     uint16
+}
+
+type IntoBackend interface {
+	IntoBackend() Backend
 }
