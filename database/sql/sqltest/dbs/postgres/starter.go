@@ -3,9 +3,11 @@ package postgres
 import (
 	"context"
 	"fmt"
+	"log/slog"
 
 	"github.com/pamburus/go-mod/database/sql/sqltest/dbs"
 	"github.com/pamburus/go-mod/database/sql/sqltest/dbs/postgres/backend"
+	"github.com/pamburus/go-mod/database/sql/sqltest/util/logging"
 )
 
 func NewStarter(backend Backend) dbs.Starter {
@@ -39,6 +41,18 @@ func (s starter) WithPassword(password string) dbs.Starter {
 
 func (s starter) WithPort(port uint16) dbs.Starter {
 	s.options.Port = port
+
+	return &s
+}
+
+func (s starter) WithLogger(logger *slog.Logger) dbs.Starter {
+	s.options.Logger = logger
+
+	return &s
+}
+
+func (s starter) WithRawLogger(logger logging.RawLogger, level slog.Level) dbs.Starter {
+	s.options.Logger = logging.RawToStructured(logger, level)
 
 	return &s
 }

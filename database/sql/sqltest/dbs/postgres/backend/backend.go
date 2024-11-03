@@ -2,6 +2,7 @@ package backend
 
 import (
 	"context"
+	"log/slog"
 	"net/url"
 )
 
@@ -18,4 +19,5 @@ type StopFunc func(context.Context) error
 type Options struct {
 	Password string
 	Port     uint16
+	Logger   *slog.Logger
 }

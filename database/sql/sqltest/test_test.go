@@ -33,7 +33,7 @@ func (t Test) Run(name string, f func(Test)) {
 // ---
 
 func TestTest(tt *testing.T) {
-	t := Test{sqltest.New(tt, postgres.NewStarter(postgres.Docker("postgres:alpine")))}
+	t := Test{sqltest.New(tt, postgres.NewStarter(postgres.Docker().WithImage("postgres:14-alpine").New()))}
 
 	countRows := func(rows *sql.Rows) int {
 		var count int

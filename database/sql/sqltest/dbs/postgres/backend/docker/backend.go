@@ -2,20 +2,23 @@ package docker
 
 import (
 	"bytes"
+	"cmp"
 	"context"
-	"encoding/base32"
-	"encoding/binary"
 	"fmt"
-	"hash/fnv"
+	"log/slog"
 	"math/rand/v2"
 	"net"
 	"net/url"
 	"os"
 	"os/exec"
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/pamburus/go-mod/database/sql/sqltest/dbs/postgres/backend"
+	"github.com/pamburus/go-mod/database/sql/sqltest/util/logging"
+	"github.com/pamburus/go-mod/database/sql/sqltest/util/portalloc"
+	"github.com/pamburus/go-mod/database/sql/sqltest/util/random"
 )
 
 // ---
@@ -66,36 +69,42 @@ func (b *dockerBackend) Start(ctx context.Context, options backend.Options) (bac
 		return nil, nil, err
 	}
 
-	if options.Password == "" {
-		bytes := fnv.New64().Sum(binary.AppendUvarint(nil, b.randSource.Uint64()))
-		options.Password = base32.StdEncoding.WithPadding(base32.NoPadding).EncodeToString(bytes)
+	port, password := options.Port, options.Password
+	if password == "" {
+		password = random.Password(b.randSource)
 	}
-
-	var suffix string
-	if options.Port != 0 {
-		suffix = fmt.Sprintf("%d", options.Port)
-	} else {
-		suffix = fmt.Sprintf("x%d", rand.Uint32()&0xffff)
+	if port == 0 {
+		var err error
+		port, err = portalloc.New()
+		if err != nil {
+			return fail(fmt.Errorf("failed to allocate port: %w", err))
+		}
 	}
-	container := fmt.Sprintf("sqltest-postgres-%s", suffix)
+	logger := cmp.Or(options.Logger, logging.DiscardLogger())
 
+	var stderr bytes.Buffer
+	container := fmt.Sprintf("sqltest-postgres-%d", port)
+
+	logger.InfoContext(ctx, "start postgres docker container", slog.String("container", container))
 	cmd := exec.Command(
 		"docker", "run",
 		"--rm",
 		"--name", container,
 		"-e", "POSTGRES_PASSWORD",
-		"-p", fmt.Sprintf("%d:5432", options.Port),
+		"-p", fmt.Sprintf("%d:5432", port),
 		b.image,
 	)
-	cmd.Env = append(cmd.Env, fmt.Sprintf("POSTGRES_PASSWORD=%s", options.Password))
-	cmd.Stderr = os.Stderr
+	cmd.Env = append(cmd.Env, fmt.Sprintf("POSTGRES_PASSWORD=%s", password))
+	cmd.Stderr = &stderr
 
+	logger.DebugContext(ctx, "command", slog.Any("command", cmd.String()))
 	err := cmd.Start()
 	if err != nil {
 		return fail(fmt.Errorf("failed to start postgres docker container: %w", err))
 	}
 
 	stop := func(ctx context.Context) error {
+		logger.InfoContext(ctx, "stop postgres docker container", slog.String("container", container))
 		err := cmd.Process.Signal(os.Interrupt)
 		if err != nil {
 			return fmt.Errorf("failed to send interrupt signal: %w", err)
@@ -103,50 +112,20 @@ func (b *dockerBackend) Start(ctx context.Context, options backend.Options) (bac
 
 		_, err = cmd.Process.Wait()
 		if err != nil {
+			for _, line := range strings.Split(stderr.String(), "\n") {
+				logger.Error(line)
+			}
+
 			return fmt.Errorf("failed to wait for postgres container: %w", err)
 		}
 
 		return nil
 	}
 
-	fail0 := fail
-	fail = func(err error) (backend.Server, backend.StopFunc, error) {
-		stopErr := stop(ctx)
-		if stopErr != nil {
-			fmt.Fprintf(os.Stderr, "failed to stop postgres container: %v\n", stopErr)
-		}
-
-		return fail0(err)
-	}
-
-	if options.Port == 0 {
-		var stdout bytes.Buffer
-
-		cmd = exec.Command("docker", "inspect", "-f", `{{range (index .NetworkSettings.Ports "5432/tcp")}}{{.HostPort}}{{end}}`, container)
-		cmd.Stdout = &stdout
-		cmd.Stderr = os.Stderr
-
-		err = cmd.Run()
-		if err != nil {
-			return fail(fmt.Errorf("failed to inspect postgres container: %w", err))
-		}
-		err = cmd.Wait()
-		if err != nil {
-			return fail(fmt.Errorf("failed to wait for inspect command: %w", err))
-		}
-
-		port, err := strconv.ParseUint(stdout.String(), 10, 16)
-		if err != nil {
-			return fail(fmt.Errorf("failed to parse port: %w", err))
-		}
-
-		options.Port = uint16(port)
-	}
-
 	location := &url.URL{
 		Scheme: "postgres",
-		User:   url.UserPassword("postgres", options.Password),
-		Host:   net.JoinHostPort("localhost", strconv.FormatUint(uint64(options.Port), 10)),
+		User:   url.UserPassword("postgres", password),
+		Host:   net.JoinHostPort("localhost", strconv.FormatUint(uint64(port), 10)),
 		RawQuery: url.Values{
 			"sslmode": []string{"disable"},
 		}.Encode(),
