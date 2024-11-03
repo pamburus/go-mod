@@ -161,23 +161,23 @@ var styleSettings = []styling.Setting{
 		),
 	),
 	styling.NewSetting(
-		`\s+time="[^"]+" level=DEBUG .*$`,
+		`\s+time=(?:(?:"[^"]+")|(?:[0-9A-Za-z:\.]+)) level=DEBUG .*$`,
 		styling.NewStyle(
-			styling.NewSequence(sgr.SetForegroundColor(sgr.BrightBlack)),
+			styling.NewSequence(sgr.SetForegroundColor(sgr.Blue)),
 			styling.NewSequence(sgr.ResetForegroundColor),
 		),
 	),
 	styling.NewSetting(
-		`\s+time="[^"]+" level=ERROR .*$`,
-		styling.NewStyle(
-			styling.NewSequence(sgr.SetForegroundColor(sgr.Red)),
-			styling.NewSequence(sgr.ResetForegroundColor),
-		),
-	),
-	styling.NewSetting(
-		`\s+time="[^"]+" level=WARN .*$`,
+		`\s+time=(?:(?:"[^"]+")|(?:[0-9A-Za-z:\.]+)) level=WARN .*$`,
 		styling.NewStyle(
 			styling.NewSequence(sgr.SetForegroundColor(sgr.Yellow)),
+			styling.NewSequence(sgr.ResetForegroundColor),
+		),
+	),
+	styling.NewSetting(
+		`\s+time=(?:(?:"[^"]+")|(?:[0-9A-Za-z:\.]+)) level=ERROR .*$`,
+		styling.NewStyle(
+			styling.NewSequence(sgr.SetForegroundColor(sgr.Red)),
 			styling.NewSequence(sgr.ResetForegroundColor),
 		),
 	),
