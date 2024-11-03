@@ -5,6 +5,8 @@ import (
 	"context"
 	"io"
 	"log/slog"
+	"math"
+	"time"
 )
 
 func DiscardLogger() *slog.Logger {
@@ -16,6 +18,8 @@ func DiscardHandler() slog.Handler {
 }
 
 func RawToStructured(logger RawLogger, level slog.Level) *slog.Logger {
+	zero := time.Now()
+
 	return slog.New(slog.NewTextHandler(&loggerWriter{logger: logger}, &slog.HandlerOptions{
 		AddSource: false,
 		Level:     level,
@@ -24,7 +28,7 @@ func RawToStructured(logger RawLogger, level slog.Level) *slog.Logger {
 				if attr.Value.Kind() == slog.KindTime {
 					return slog.Attr{
 						Key:   attr.Key,
-						Value: slog.StringValue(attr.Value.Time().Format("2006-01-02 15:04:05.000")),
+						Value: slog.Float64Value(math.Floor(attr.Value.Time().Sub(zero).Seconds()*1000) / 1000),
 					}
 				}
 			}
