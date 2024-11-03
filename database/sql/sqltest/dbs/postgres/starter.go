@@ -8,8 +8,8 @@ import (
 	"github.com/pamburus/go-mod/database/sql/sqltest/dbs/postgres/backend"
 )
 
-func NewStarter(backend Backend) dbs.Starter {
-	return &starter{backend: backend}
+func NewStarter(backend IntoBackend) dbs.Starter {
+	return &starter{backend: backend.IntoBackend()}
 }
 
 // ---

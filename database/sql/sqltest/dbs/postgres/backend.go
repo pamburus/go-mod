@@ -33,6 +33,12 @@ func (b DockerBackendBuilder) New() Backend {
 	return docker.New(b.options...)
 }
 
+func (b DockerBackendBuilder) IntoBackend() Backend {
+	return b.New()
+}
+
 // ---
 
 type Backend = backend.Backend
+
+type IntoBackend = backend.IntoBackend

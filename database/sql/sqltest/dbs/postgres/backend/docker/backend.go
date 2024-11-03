@@ -153,6 +153,10 @@ func (b *dockerBackend) Start(ctx context.Context, options backend.Options) (bac
 	return &server{processContext, location}, stop, nil
 }
 
+func (b *dockerBackend) IntoBackend() backend.Backend {
+	return b
+}
+
 // ---
 
 type server struct {

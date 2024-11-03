@@ -74,7 +74,7 @@ test: $(modules:%=test/%)
 ## Run tests for a module
 .PHONY: test/%
 test/%:
-ifeq ($(debug),yes)
+ifeq ($(debug-sql),yes)
 	go list -f '{{.Dir}}' ./$* | xargs -o -S 4096 -I {} ${SHELL} -c 'go test -c -o {}/.test -coverprofile={}/.cover.out {} && {}/.test -test.v -test.coverprofile={}/.cover.out'
 else
 	$(go-test) -fullpath -coverprofile=$*/.cover.out ./$*/... | $(test-filter)
