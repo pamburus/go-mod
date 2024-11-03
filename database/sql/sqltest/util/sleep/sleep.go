@@ -13,7 +13,7 @@ func Sleep(ctx context.Context, d time.Duration) error {
 
 	select {
 	case <-ctx.Done():
-		return ctx.Err()
+		return context.Cause(ctx)
 	case <-timer.C:
 		return nil
 	}

@@ -15,12 +15,17 @@ var _ dbs.Server = &server{}
 // ---
 
 type server struct {
-	srv  backend.Server
+	opts backend.Options
+	bs   backend.Server
 	stop func(context.Context) error
 }
 
+func (s *server) Context() context.Context {
+	return s.bs.Context()
+}
+
 func (s *server) URL() *url.URL {
-	return s.srv.URL()
+	return s.bs.URL()
 }
 
 func (s *server) Database(name dbs.DatabaseName) dbs.Database {
@@ -28,7 +33,7 @@ func (s *server) Database(name dbs.DatabaseName) dbs.Database {
 		name = "postgres"
 	}
 
-	u := *s.srv.URL()
+	u := *s.bs.URL()
 	u.Path = path.Join(cmp.Or(u.Path, "/"), name)
 
 	return &database{s, &u}
