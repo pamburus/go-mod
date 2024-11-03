@@ -2,7 +2,6 @@ package docker
 
 import (
 	"bytes"
-	"cmp"
 	"context"
 	"fmt"
 	"log/slog"
@@ -13,10 +12,11 @@ import (
 	"os/exec"
 	"strconv"
 	"strings"
+	"sync"
 	"time"
 
 	"github.com/pamburus/go-mod/database/sql/sqltest/dbs/postgres/backend"
-	"github.com/pamburus/go-mod/database/sql/sqltest/util/logging"
+	"github.com/pamburus/go-mod/database/sql/sqltest/util/logging/logctx"
 	"github.com/pamburus/go-mod/database/sql/sqltest/util/portalloc"
 	"github.com/pamburus/go-mod/database/sql/sqltest/util/random"
 )
@@ -80,12 +80,11 @@ func (b *dockerBackend) Start(ctx context.Context, options backend.Options) (bac
 			return fail(fmt.Errorf("failed to allocate port: %w", err))
 		}
 	}
-	logger := cmp.Or(options.Logger, logging.DiscardLogger())
 
 	var stderr bytes.Buffer
 	container := fmt.Sprintf("sqltest-postgres-%d", port)
+	logger := logctx.Get(ctx)
 
-	logger.InfoContext(ctx, "start postgres docker container", slog.String("container", container))
 	cmd := exec.Command(
 		"docker", "run",
 		"--rm",
@@ -97,30 +96,50 @@ func (b *dockerBackend) Start(ctx context.Context, options backend.Options) (bac
 	cmd.Env = append(cmd.Env, fmt.Sprintf("POSTGRES_PASSWORD=%s", password))
 	cmd.Stderr = &stderr
 
-	logger.DebugContext(ctx, "command", slog.Any("command", cmd.String()))
+	logger.LogAttrs(ctx, slog.LevelDebug, "start postgres docker container", slog.Any("command", cmd.String()))
 	err := cmd.Start()
 	if err != nil {
 		return fail(fmt.Errorf("failed to start postgres docker container: %w", err))
 	}
 
+	var wg sync.WaitGroup
+	processContext, cancel := context.WithCancelCause(ctx)
+
 	stop := func(ctx context.Context) error {
-		logger.InfoContext(ctx, "stop postgres docker container", slog.String("container", container))
-		err := cmd.Process.Signal(os.Interrupt)
-		if err != nil {
-			return fmt.Errorf("failed to send interrupt signal: %w", err)
-		}
+		defer wg.Wait()
 
-		_, err = cmd.Process.Wait()
-		if err != nil {
-			for _, line := range strings.Split(stderr.String(), "\n") {
-				logger.Error(line)
+		if processContext.Err() == nil {
+			logger.LogAttrs(ctx, slog.LevelDebug, "stop postgres docker container", slog.String("container", container))
+			err := cmd.Process.Signal(os.Interrupt)
+			if err != nil {
+				logger.LogAttrs(ctx, slog.LevelDebug, "failed to send interrupt signal", slog.Any("error", err))
 			}
-
-			return fmt.Errorf("failed to wait for postgres container: %w", err)
 		}
 
 		return nil
 	}
+
+	wg.Add(1)
+	go func() {
+		defer wg.Done()
+
+		state, err := cmd.Process.Wait()
+		if err == nil && state.ExitCode() != 0 {
+			err = fmt.Errorf("postgres container exited with %s", state)
+		}
+		if err != nil {
+			logger.LogAttrs(ctx, slog.LevelError, "docker container exited with error",
+				slog.String("container", container),
+				slog.Any("error", err),
+			)
+			for _, line := range strings.Split(stderr.String(), "\n") {
+				logger.LogAttrs(ctx, slog.LevelError, "stderr", slog.String("line", line))
+			}
+		} else {
+			logger.LogAttrs(ctx, slog.LevelDebug, "docker container exited", slog.String("container", container))
+		}
+		cancel(err)
+	}()
 
 	location := &url.URL{
 		Scheme: "postgres",
@@ -131,13 +150,18 @@ func (b *dockerBackend) Start(ctx context.Context, options backend.Options) (bac
 		}.Encode(),
 	}
 
-	return &server{location}, stop, nil
+	return &server{processContext, location}, stop, nil
 }
 
 // ---
 
 type server struct {
+	ctx      context.Context
 	location *url.URL
+}
+
+func (s *server) Context() context.Context {
+	return s.ctx
 }
 
 func (s *server) URL() *url.URL {

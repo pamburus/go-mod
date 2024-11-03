@@ -17,6 +17,7 @@ import (
 	"github.com/pamburus/go-mod/database/sql/sqltest/util/envflag"
 	"github.com/pamburus/go-mod/database/sql/sqltest/util/hashstr"
 	"github.com/pamburus/go-mod/database/sql/sqltest/util/logging"
+	"github.com/pamburus/go-mod/database/sql/sqltest/util/logging/logctx"
 	"github.com/pamburus/go-mod/database/sql/sqltest/util/sleep"
 )
 
@@ -62,18 +63,20 @@ func (b TestBuilder[T]) Done() *Test[T] {
 		ctx = b.ctxFunc(b.tt)
 	}
 
-	clone := setup(ctx, b.tt, b.starter)
-	database := clone(ctx, b.tt, "", "init")
+	dbName := "init"
+	ctx, logger, clone := setup(ctx, b.tt, b.starter)
+	database := clone(ctx, b.tt, "", dbName)
 
 	return &Test[T]{
 		b.tt,
 		b.tt,
 		ctx,
 		b.ctxFunc,
+		logger,
 		database,
 		sync.Once{},
 		nil,
-		"init",
+		dbName,
 		clone,
 	}
 }
@@ -85,6 +88,7 @@ type Test[T Base[T]] struct {
 	base     T
 	ctx      context.Context
 	ctxFunc  func(T) context.Context
+	logger   loggerFunc
 	database dbs.Database
 	onceDB   sync.Once
 	db       *sql.DB
@@ -134,6 +138,7 @@ func (t *Test[T]) fork(tt T) *Test[T] {
 	if t.ctxFunc != nil {
 		ctx = t.ctxFunc(tt)
 	}
+	ctx = logctx.New(ctx, t.logger(tt))
 
 	dbName := "test_" + hashstr.New(fnv.New64(), []byte(tt.Name()))
 	database := t.clone(ctx, tt, t.dbName, dbName)
@@ -143,6 +148,7 @@ func (t *Test[T]) fork(tt T) *Test[T] {
 		tt,
 		ctx,
 		t.ctxFunc,
+		t.logger,
 		database,
 		sync.Once{},
 		nil,
@@ -153,35 +159,43 @@ func (t *Test[T]) fork(tt T) *Test[T] {
 
 // ---
 
-func setup(ctx context.Context, t testing.TB, starter dbs.Starter) cloneFunc {
+func setup(ctx context.Context, t testing.TB, starter dbs.Starter) (context.Context, loggerFunc, cloneFunc) {
 	var debug atomic.Bool
-	debug.Store(envflag.Get("SQLTEST_DEBUG"))
+	debug.Store(envflag.Get(envVarDebug))
 
 	level := slog.LevelInfo
-	if v, ok := os.LookupEnv("SQLTEST_LOG_LEVEL"); ok {
+	if v, ok := os.LookupEnv(envVarLogLevel); ok {
 		err := level.UnmarshalText([]byte(v))
 		if err != nil {
-			t.Fatalf("failed to parse SQLTEST_LOG_LEVEL: %v", err)
+			t.Fatalf("failed to parse %s: %v", envVarLogLevel, err)
 		}
 	}
 
-	logger := logging.RawToStructured(logging.RawPrefix("[sqltest]", t), level)
+	newLogger := func(t testing.TB) *slog.Logger {
+		return logging.RawToStructured(logging.RawPrefix("[sqltest]", t), level)
+	}
 
-	server, err := starter.WithLogger(logger).Start(ctx)
+	logger := newLogger(t)
+	ctx = logctx.New(ctx, logger)
+
+	server, err := starter.Start(ctx)
 	if err != nil {
-		logger.ErrorContext(ctx, "failed to start database server", slog.Any("error", err))
+		logger.LogAttrs(ctx, slog.LevelError, "failed to start database server", slog.Any("error", err))
 		t.FailNow()
 	}
 
 	t.Cleanup(func() {
 		err := server.Stop(ctx)
 		if err != nil {
-			logger.ErrorContext(ctx, "failed to stop database server", slog.Any("location", server.URL()), slog.Any("error", err))
+			logger.LogAttrs(ctx, slog.LevelError, "failed to stop database server",
+				slog.Any("location", server.URL()),
+				slog.Any("error", err),
+			)
 			t.FailNow()
 		}
 	})
 
-	return func(ctx context.Context, t testing.TB, base string, name string) dbs.Database {
+	clone := func(ctx context.Context, t testing.TB, base string, name string) dbs.Database {
 		ctx, cancel := context.WithTimeout(ctx, 5*time.Second)
 		defer cancel()
 
@@ -193,7 +207,10 @@ func setup(ctx context.Context, t testing.TB, starter dbs.Starter) cloneFunc {
 				logger.DebugContext(ctx, "database is not ready", slog.Any("reason", err))
 				err := sleep.Sleep(ctx, time.Second/4)
 				if err != nil {
-					logger.ErrorContext(ctx, "failed to wait for database readiness", slog.Any("database", database.URL()), slog.Any("error", err))
+					logger.LogAttrs(ctx, slog.LevelError, "failed to wait for database readiness",
+						slog.Any("database", database.URL()),
+						slog.Any("error", err),
+					)
 					t.FailNow()
 				}
 
@@ -202,7 +219,11 @@ func setup(ctx context.Context, t testing.TB, starter dbs.Starter) cloneFunc {
 
 			database, err = database.Clone(ctx, name)
 			if err != nil {
-				logger.ErrorContext(ctx, "failed to clone database", slog.Any("database", database.URL()), slog.String("target", name), slog.Any("error", err))
+				logger.LogAttrs(ctx, slog.LevelError, "failed to clone database",
+					slog.Any("database", database.URL()),
+					slog.String("target", name),
+					slog.Any("error", err),
+				)
 				t.FailNow()
 			}
 
@@ -218,7 +239,10 @@ func setup(ctx context.Context, t testing.TB, starter dbs.Starter) cloneFunc {
 				logger.InfoContext(ctx, "debug database", slog.Any("database", database.URL()))
 				err := database.Debug(ctx)
 				if err != nil {
-					logger.ErrorContext(ctx, "failed to debug database", slog.Any("database", database.URL()), slog.Any("error", err))
+					logger.LogAttrs(ctx, slog.LevelError, "failed to debug database",
+						slog.Any("database", database.URL()),
+						slog.Any("error", err),
+					)
 					t.FailNow()
 				}
 			})
@@ -226,11 +250,16 @@ func setup(ctx context.Context, t testing.TB, starter dbs.Starter) cloneFunc {
 
 		return database
 	}
+
+	return server.Context(), newLogger, clone
 }
 
 // ---
 
-type cloneFunc func(ctx context.Context, t testing.TB, base, name string) dbs.Database
+type (
+	cloneFunc  func(ctx context.Context, t testing.TB, base, name string) dbs.Database
+	loggerFunc func(t testing.TB) *slog.Logger
+)
 
 // ---
 

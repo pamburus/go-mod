@@ -4,6 +4,7 @@ import (
 	"context"
 	"database/sql"
 	"fmt"
+	"log/slog"
 	"net"
 	"net/url"
 	"os"
@@ -11,6 +12,7 @@ import (
 	"strings"
 
 	"github.com/pamburus/go-mod/database/sql/sqltest/dbs"
+	"github.com/pamburus/go-mod/database/sql/sqltest/util/logging/logctx"
 )
 
 var _ dbs.Database = &database{}
@@ -77,6 +79,11 @@ func (d *database) Clone(ctx context.Context, target dbs.DatabaseName) (dbs.Data
 	fail := func(err error) (dbs.Database, error) {
 		return nil, err
 	}
+
+	logctx.Get(ctx).LogAttrs(ctx, slog.LevelDebug, "clone database",
+		slog.String("source", d.name()),
+		slog.String("target", target),
+	)
 
 	db, err := d.Open(ctx)
 	if err != nil {
