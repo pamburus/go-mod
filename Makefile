@@ -33,10 +33,10 @@ test-filter := go run ./build/tools/cmd/test-filter
 ifeq ($(verbose),yes)
 	coverage-filter += -v
 	go-test += -v
+	export SQLTEST_LOG_LEVEL=debug
 endif
 ifeq ($(debug),yes)
-export SQLTEST_DEBUG=yes
-export SQLTEST_LOG_LEVEL=debug
+	export SQLTEST_DEBUG=yes
 endif
  
 ## Run all tests
@@ -74,7 +74,7 @@ test: $(modules:%=test/%)
 ## Run tests for a module
 .PHONY: test/%
 test/%:
-ifeq ($(debug-sql),yes)
+ifeq ($(debug),yes)
 	go list -f '{{.Dir}}' ./$* | xargs -o -S 4096 -I {} ${SHELL} -c 'go test -c -o {}/.test -coverprofile={}/.cover.out {} && {}/.test -test.v -test.coverprofile={}/.cover.out'
 else
 	$(go-test) -fullpath -coverprofile=$*/.cover.out ./$*/... | $(test-filter)
