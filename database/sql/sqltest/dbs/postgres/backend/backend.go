@@ -7,7 +7,7 @@ import (
 
 type Backend interface {
 	Start(context.Context, Options) (Server, StopFunc, error)
-	IntoBackend
+	BackendProvider
 }
 
 type Server interface {
@@ -22,6 +22,6 @@ type Options struct {
 	Port     uint16
 }
 
-type IntoBackend interface {
-	IntoBackend() Backend
+type BackendProvider interface {
+	Backend() Backend
 }
