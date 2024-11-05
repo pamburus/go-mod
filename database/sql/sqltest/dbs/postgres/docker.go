@@ -3,41 +3,41 @@ package postgres
 import (
 	"math/rand/v2"
 
-	"github.com/pamburus/go-mod/database/sql/sqltest/dbs/postgres/backend/docker"
+	"github.com/pamburus/go-mod/database/sql/sqltest/dbs/postgres/instances/docker"
 )
 
-func Docker() DockerBackendBuilder {
-	return DockerBackendBuilder{}
+func Docker() DockerInstanceManagerBuilder {
+	return DockerInstanceManagerBuilder{}
 }
 
 // ---
 
-type DockerBackendBuilder struct {
+type DockerInstanceManagerBuilder struct {
 	options []docker.Option
 }
 
-func (b DockerBackendBuilder) WithImage(image string) DockerBackendBuilder {
+func (b DockerInstanceManagerBuilder) WithImage(image string) DockerInstanceManagerBuilder {
 	b.options = append(b.options, docker.WithImage(image))
 
 	return b
 }
 
-func (b DockerBackendBuilder) WithRandSource(randSource rand.Source) DockerBackendBuilder {
+func (b DockerInstanceManagerBuilder) WithRandSource(randSource rand.Source) DockerInstanceManagerBuilder {
 	b.options = append(b.options, docker.WithRandSource(randSource))
 
 	return b
 }
 
-func (b DockerBackendBuilder) New() Backend {
+func (b DockerInstanceManagerBuilder) New() InstanceManager {
 	return docker.New(b.options...)
 }
 
-func (b DockerBackendBuilder) Backend() Backend {
+func (b DockerInstanceManagerBuilder) Manager() InstanceManager {
 	return b.New()
 }
 
 // ---
 
 var (
-	_ BackendProvider = DockerBackendBuilder{}
+	_ InstanceManagerProvider = DockerInstanceManagerBuilder{}
 )

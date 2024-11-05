@@ -6,14 +6,14 @@ import (
 	"time"
 
 	"github.com/pamburus/go-mod/database/sql/sqltest/dbs/postgres"
-	"github.com/pamburus/go-mod/database/sql/sqltest/dbs/postgres/backend"
+	"github.com/pamburus/go-mod/database/sql/sqltest/dbs/postgres/instances"
 )
 
-func TestDocker(t *testing.T) {
+func TestManager(t *testing.T) {
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
-	server, stop, err := postgres.Docker().New().Start(ctx, backend.Options{
+	server, stop, err := postgres.Docker().New().Start(ctx, instances.Options{
 		Password: "password",
 	})
 	if err != nil {
