@@ -109,6 +109,6 @@ tidy/%:
 .PHONY: clean
 clean:
 	rm -f $(modules:%=%/.cover.out)
-	rm -f **/.cover.out
-	rm -f **/.test
-	rm -f **/go.work.sum
+	find . -type f -name .cover.out -delete
+	find . -type f -name .test -delete
+	find . -type f -name go.work.sum -delete
