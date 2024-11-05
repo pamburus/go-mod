@@ -9,13 +9,13 @@ import (
 	"net"
 	"net/url"
 	"os"
-	"os/exec"
 	"strconv"
 	"strings"
 	"sync"
 	"time"
 
 	"github.com/pamburus/go-mod/database/sql/sqltest/dbs/postgres/instances"
+	"github.com/pamburus/go-mod/database/sql/sqltest/util/abstract/os/exec"
 	"github.com/pamburus/go-mod/database/sql/sqltest/util/logging/logctx"
 	"github.com/pamburus/go-mod/database/sql/sqltest/util/portalloc"
 	"github.com/pamburus/go-mod/database/sql/sqltest/util/random"
@@ -33,6 +33,9 @@ func New(options ...Option) instances.Manager {
 	if opts.randSource == nil {
 		opts.randSource = rand.NewPCG(0, uint64(time.Now().UnixNano()))
 	}
+	if opts.exec == nil {
+		opts.exec = exec.Default()
+	}
 
 	return &instanceManager{opts}
 }
@@ -49,6 +52,12 @@ func WithRandSource(randSource rand.Source) Option {
 	}
 }
 
+func WithCommandFactory(exec exec.Exec) Option {
+	return func(o *jointOptions) {
+		o.exec = exec
+	}
+}
+
 type Option func(*jointOptions)
 
 // ---
@@ -56,6 +65,7 @@ type Option func(*jointOptions)
 type jointOptions struct {
 	image      string
 	randSource rand.Source
+	exec       exec.Exec
 }
 
 // ---
@@ -85,7 +95,7 @@ func (m *instanceManager) Start(ctx context.Context, options instances.Options) 
 	container := fmt.Sprintf("sqltest-postgres-%d", port)
 	logger := logctx.Get(ctx)
 
-	cmd := exec.Command(
+	cmd := m.exec.Command(
 		"docker", "run",
 		"--rm",
 		"--name", container,
@@ -93,8 +103,8 @@ func (m *instanceManager) Start(ctx context.Context, options instances.Options) 
 		"-p", fmt.Sprintf("%d:5432", port),
 		m.image,
 	)
-	cmd.Env = append(cmd.Env, fmt.Sprintf("POSTGRES_PASSWORD=%s", password))
-	cmd.Stderr = &stderr
+	cmd.SetExtraEnv(fmt.Sprintf("POSTGRES_PASSWORD=%s", password))
+	cmd.SetStderr(&stderr)
 
 	logger.LogAttrs(ctx, slog.LevelDebug, "start postgres docker container", slog.Any("command", cmd.String()))
 	err := cmd.Start()
@@ -110,7 +120,7 @@ func (m *instanceManager) Start(ctx context.Context, options instances.Options) 
 
 		if processContext.Err() == nil {
 			logger.LogAttrs(ctx, slog.LevelDebug, "stop postgres docker container", slog.String("container", container))
-			err := cmd.Process.Signal(os.Interrupt)
+			err := cmd.Process().Signal(os.Interrupt)
 			if err != nil {
 				logger.LogAttrs(ctx, slog.LevelDebug, "failed to send interrupt signal", slog.Any("error", err))
 			}
@@ -123,7 +133,7 @@ func (m *instanceManager) Start(ctx context.Context, options instances.Options) 
 	go func() {
 		defer wg.Done()
 
-		state, err := cmd.Process.Wait()
+		state, err := cmd.Process().Wait()
 		if err == nil && state.ExitCode() != 0 {
 			err = fmt.Errorf("postgres container exited with %s", state)
 		}

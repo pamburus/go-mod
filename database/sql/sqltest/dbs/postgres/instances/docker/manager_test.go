@@ -5,6 +5,8 @@ import (
 	"testing"
 	"time"
 
+	"github.com/stretchr/testify/assert"
+
 	"github.com/pamburus/go-mod/database/sql/sqltest/dbs/postgres"
 	"github.com/pamburus/go-mod/database/sql/sqltest/dbs/postgres/instances"
 )
@@ -12,6 +14,9 @@ import (
 func TestManager(t *testing.T) {
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
+
+	manager := postgres.Docker().New()
+	assert.Equal(t, manager, manager.Manager())
 
 	server, stop, err := postgres.Docker().New().Start(ctx, instances.Options{
 		Password: "password",
@@ -22,16 +27,10 @@ func TestManager(t *testing.T) {
 	defer stop(ctx)
 
 	location := server.URL()
-	if location == nil {
-		t.Fatalf("got nil server url")
-	}
-	if location.Scheme != "postgres" {
-		t.Fatalf("got scheme %q, want %q", location.Scheme, "postgres")
-	}
-	if location.Hostname() != "localhost" {
-		t.Fatalf("got host %q, want %q", location.Hostname(), "localhost")
-	}
-	if location.User == nil {
-		t.Fatalf("got nil user")
-	}
+	assert.NotNil(t, location)
+	assert.Equal(t, location.Scheme, "postgres")
+	assert.Equal(t, location.Hostname(), "localhost")
+	assert.NotNil(t, location.User)
+	assert.NotNil(t, server.Context())
+	assert.NoError(t, server.Context().Err())
 }
