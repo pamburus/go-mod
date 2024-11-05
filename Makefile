@@ -75,7 +75,9 @@ test: $(modules:%=test/%)
 .PHONY: test/%
 test/%:
 ifeq ($(debug),yes)
-	go list -f '{{.Dir}}' ./$* | xargs -o -S 4096 -I {} ${SHELL} -c 'go test -c -o {}/.test -coverprofile={}/.cover.out {} && {}/.test -test.v -test.coverprofile={}/.cover.out'
+		go list -f '{{.Dir}}' ./$*/... \
+		| xargs -S 8192 -o -I {} \
+			${SHELL} -c 'go test -c -o {}/.test {} && ! test -f {}/.test || {}/.test -test.v'
 else
 	$(go-test) -fullpath -coverprofile=$*/.cover.out ./$*/... | $(test-filter)
 endif
