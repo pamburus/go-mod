@@ -8,8 +8,6 @@ import (
 
 type Starter interface {
 	Start(ctx context.Context) (Server, error)
-	WithPassword(string) Starter
-	WithPort(uint16) Starter
 }
 
 type Server interface {

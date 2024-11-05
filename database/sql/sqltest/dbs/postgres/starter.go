@@ -31,15 +31,3 @@ func (s *starter) Start(ctx context.Context) (dbs.Server, error) {
 		stop,
 	}, nil
 }
-
-func (s starter) WithPassword(password string) dbs.Starter {
-	s.options.Password = password
-
-	return &s
-}
-
-func (s starter) WithPort(port uint16) dbs.Starter {
-	s.options.Port = port
-
-	return &s
-}
