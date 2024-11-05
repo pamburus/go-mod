@@ -5,22 +5,22 @@ import (
 	"fmt"
 
 	"github.com/pamburus/go-mod/database/sql/sqltest/dbs"
-	"github.com/pamburus/go-mod/database/sql/sqltest/dbs/postgres/backend"
+	"github.com/pamburus/go-mod/database/sql/sqltest/dbs/postgres/instances"
 )
 
-func NewStarter(backend BackendProvider) dbs.Starter {
-	return &starter{backend: backend.Backend()}
+func NewStarter(instances InstanceManagerProvider) dbs.Starter {
+	return &starter{instances: instances.Manager()}
 }
 
 // ---
 
 type starter struct {
-	backend Backend
-	options backend.Options
+	instances InstanceManager
+	options   instances.Options
 }
 
 func (s *starter) Start(ctx context.Context) (dbs.Server, error) {
-	bs, stop, err := s.backend.Start(ctx, s.options)
+	bs, stop, err := s.instances.Start(ctx, s.options)
 	if err != nil {
 		return nil, fmt.Errorf("failed to start postgres container: %w", err)
 	}

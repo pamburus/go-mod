@@ -15,7 +15,7 @@ import (
 	"sync"
 	"time"
 
-	"github.com/pamburus/go-mod/database/sql/sqltest/dbs/postgres/backend"
+	"github.com/pamburus/go-mod/database/sql/sqltest/dbs/postgres/instances"
 	"github.com/pamburus/go-mod/database/sql/sqltest/util/logging/logctx"
 	"github.com/pamburus/go-mod/database/sql/sqltest/util/portalloc"
 	"github.com/pamburus/go-mod/database/sql/sqltest/util/random"
@@ -23,7 +23,7 @@ import (
 
 // ---
 
-func New(options ...Option) backend.Backend {
+func New(options ...Option) instances.Manager {
 	opts := jointOptions{
 		image: "postgres:alpine",
 	}
@@ -34,7 +34,7 @@ func New(options ...Option) backend.Backend {
 		opts.randSource = rand.NewPCG(0, uint64(time.Now().UnixNano()))
 	}
 
-	return &dockerBackend{opts}
+	return &instanceManager{opts}
 }
 
 func WithImage(image string) Option {
@@ -60,18 +60,18 @@ type jointOptions struct {
 
 // ---
 
-type dockerBackend struct {
+type instanceManager struct {
 	jointOptions
 }
 
-func (b *dockerBackend) Start(ctx context.Context, options backend.Options) (backend.Server, backend.StopFunc, error) {
-	fail := func(err error) (backend.Server, backend.StopFunc, error) {
+func (m *instanceManager) Start(ctx context.Context, options instances.Options) (instances.Instance, instances.StopFunc, error) {
+	fail := func(err error) (instances.Instance, instances.StopFunc, error) {
 		return nil, nil, err
 	}
 
 	port, password := options.Port, options.Password
 	if password == "" {
-		password = random.Password(b.randSource)
+		password = random.Password(m.randSource)
 	}
 	if port == 0 {
 		var err error
@@ -91,7 +91,7 @@ func (b *dockerBackend) Start(ctx context.Context, options backend.Options) (bac
 		"--name", container,
 		"-e", "POSTGRES_PASSWORD",
 		"-p", fmt.Sprintf("%d:5432", port),
-		b.image,
+		m.image,
 	)
 	cmd.Env = append(cmd.Env, fmt.Sprintf("POSTGRES_PASSWORD=%s", password))
 	cmd.Stderr = &stderr
@@ -153,8 +153,8 @@ func (b *dockerBackend) Start(ctx context.Context, options backend.Options) (bac
 	return &server{processContext, location}, stop, nil
 }
 
-func (b *dockerBackend) Backend() backend.Backend {
-	return b
+func (m *instanceManager) Manager() instances.Manager {
+	return m
 }
 
 // ---
