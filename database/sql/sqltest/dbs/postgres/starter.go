@@ -20,14 +20,14 @@ type starter struct {
 }
 
 func (s *starter) Start(ctx context.Context) (dbs.Server, error) {
-	bs, stop, err := s.instances.Start(ctx, s.options)
+	instance, stop, err := s.instances.Start(ctx, s.options)
 	if err != nil {
 		return nil, fmt.Errorf("failed to start postgres container: %w", err)
 	}
 
 	return &server{
 		s.options,
-		bs,
+		instance,
 		stop,
 	}, nil
 }
