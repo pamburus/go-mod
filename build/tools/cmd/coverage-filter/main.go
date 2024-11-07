@@ -9,6 +9,8 @@ import (
 	"log"
 	"os"
 	"strings"
+
+	"github.com/pamburus/go-mod/build/tools/internal/colorization"
 )
 
 func colorize(lines iter.Seq[string]) iter.Seq[string] {
@@ -76,10 +78,10 @@ func tabulate(lines iter.Seq[string]) iter.Seq[string] {
 			base = max(3, base)
 			l1 := 1 << base
 			l0 := l1 >> 1
-			if width < l0+l1 {
-				widths[i] = l0 + l1
+			if width < l0+l1-1 {
+				widths[i] = l0 + l1 - 1
 			} else {
-				widths[i] = l1 + l1
+				widths[i] = l1 + l1 - 1
 			}
 		}
 
@@ -116,13 +118,15 @@ func stripVerbose(lines iter.Seq[string]) iter.Seq[string] {
 
 func main() {
 	var verbose bool
+	var color string
 
 	flag.BoolVar(&verbose, "v", false, "verbose output")
+	flag.StringVar(&color, "color", "auto", "colorize output [auto, always, never]")
 	flag.Parse()
 	args := flag.Args()
 
 	if len(args) != 1 {
-		fmt.Printf("Usage: %s [-v] <base-import-path>\n", os.Args[0])
+		fmt.Printf("Usage: %s [-v] [-color [auto|always|never]] <base-import-path>\n", os.Args[0])
 		os.Exit(1)
 	}
 
@@ -134,7 +138,9 @@ func main() {
 	}
 	lines = improveImportPath(lines, baseImportPath)
 	lines = tabulate(lines)
-	lines = colorize(lines)
+	if colorization.Enabled(color, os.Stdout) {
+		lines = colorize(lines)
+	}
 	err := writeLines(os.Stdout, lines)
 	if err != nil {
 		log.Fatal(err)
