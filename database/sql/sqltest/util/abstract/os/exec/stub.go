@@ -88,3 +88,7 @@ func (s *stubProcessState) ExitCode() int {
 func (s *stubProcessState) Exited() bool {
 	return true
 }
+
+func (s *stubProcessState) String() string {
+	return ""
+}

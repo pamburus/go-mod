@@ -98,3 +98,7 @@ func (s *defaultProcessState) ExitCode() int {
 func (s *defaultProcessState) Exited() bool {
 	return s.state.Exited()
 }
+
+func (s *defaultProcessState) String() string {
+	return s.state.String()
+}

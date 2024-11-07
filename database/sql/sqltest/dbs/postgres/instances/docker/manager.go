@@ -25,16 +25,13 @@ import (
 
 func New(options ...Option) instances.Manager {
 	opts := jointOptions{
-		image: "postgres:alpine",
+		image:        "postgres:alpine",
+		exec:         exec.Default(),
+		allocatePort: portalloc.New,
+		randSource:   rand.NewPCG(0, uint64(time.Now().UnixNano())),
 	}
 	for _, o := range options {
 		o(&opts)
-	}
-	if opts.randSource == nil {
-		opts.randSource = rand.NewPCG(0, uint64(time.Now().UnixNano()))
-	}
-	if opts.exec == nil {
-		opts.exec = exec.Default()
 	}
 
 	return &instanceManager{opts}
@@ -42,19 +39,33 @@ func New(options ...Option) instances.Manager {
 
 func WithImage(image string) Option {
 	return func(o *jointOptions) {
-		o.image = image
+		if image != "" {
+			o.image = image
+		}
 	}
 }
 
 func WithRandSource(randSource rand.Source) Option {
 	return func(o *jointOptions) {
-		o.randSource = randSource
+		if randSource != nil {
+			o.randSource = randSource
+		}
 	}
 }
 
-func WithCommandFactory(exec exec.Exec) Option {
+func WithExec(exec exec.Exec) Option {
 	return func(o *jointOptions) {
-		o.exec = exec
+		if exec != nil {
+			o.exec = exec
+		}
+	}
+}
+
+func WithPortAllocator(f func() (uint16, error)) Option {
+	return func(o *jointOptions) {
+		if f != nil {
+			o.allocatePort = f
+		}
 	}
 }
 
@@ -63,9 +74,10 @@ type Option func(*jointOptions)
 // ---
 
 type jointOptions struct {
-	image      string
-	randSource rand.Source
-	exec       exec.Exec
+	image        string
+	randSource   rand.Source
+	exec         exec.Exec
+	allocatePort func() (uint16, error)
 }
 
 // ---
@@ -80,15 +92,15 @@ func (m *instanceManager) Start(ctx context.Context, options instances.Options) 
 	}
 
 	port, password := options.Port, options.Password
-	if password == "" {
-		password = random.Password(m.randSource)
-	}
 	if port == 0 {
 		var err error
-		port, err = portalloc.New()
+		port, err = m.allocatePort()
 		if err != nil {
 			return fail(fmt.Errorf("failed to allocate port: %w", err))
 		}
+	}
+	if password == "" {
+		password = random.Password(m.randSource)
 	}
 
 	var stderr bytes.Buffer
@@ -106,7 +118,7 @@ func (m *instanceManager) Start(ctx context.Context, options instances.Options) 
 	cmd.SetExtraEnv(fmt.Sprintf("POSTGRES_PASSWORD=%s", password))
 	cmd.SetStderr(&stderr)
 
-	logger.LogAttrs(ctx, slog.LevelDebug, "start postgres docker container", slog.Any("command", cmd.String()))
+	logger.LogAttrs(ctx, slog.LevelDebug, "start postgres docker container", slog.Any("command", cmd))
 	err := cmd.Start()
 	if err != nil {
 		return fail(fmt.Errorf("failed to start postgres docker container: %w", err))
@@ -116,15 +128,15 @@ func (m *instanceManager) Start(ctx context.Context, options instances.Options) 
 	processContext, cancel := context.WithCancelCause(ctx)
 
 	stop := func(ctx context.Context) error {
-		defer wg.Wait()
-
 		if processContext.Err() == nil {
 			logger.LogAttrs(ctx, slog.LevelDebug, "stop postgres docker container", slog.String("container", container))
 			err := cmd.Process().Signal(os.Interrupt)
 			if err != nil {
-				logger.LogAttrs(ctx, slog.LevelDebug, "failed to send interrupt signal", slog.Any("error", err))
+				return fmt.Errorf("failed to send interrupt signal: %w", err)
 			}
 		}
+
+		wg.Wait()
 
 		return nil
 	}
