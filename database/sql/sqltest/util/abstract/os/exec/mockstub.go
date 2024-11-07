@@ -98,6 +98,10 @@ func (s *mockStubProcessState) Exited() bool {
 	panic(unimplemented)
 }
 
+func (s *mockStubProcessState) String() string {
+	panic(unimplemented)
+}
+
 // ---
 
 var unimplemented = errors.New("not implemented")

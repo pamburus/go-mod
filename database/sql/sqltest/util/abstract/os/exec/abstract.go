@@ -67,4 +67,6 @@ type ProcessState interface {
 	ExitCode() int
 	// Exited returns true if the process has exited.
 	Exited() bool
+	// String returns the process state as a string.
+	String() string
 }
