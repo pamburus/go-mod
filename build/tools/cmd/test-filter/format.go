@@ -4,12 +4,8 @@ import "regexp"
 
 var reformatSettings = []reformatSetting{
 	{
-		pattern: regexp.MustCompile(`^(?P<result>\?)\s+(?P<module>[\w\./\-]+)\s+(?P<notice>\[[\w\s]+\])\s*$`),
-		format:  "%-7[1]s %-63[2]s         %[3]s",
-	},
-	{
-		pattern: regexp.MustCompile(`^(?P<result>ok|fail|\?)\s+(?P<module>[\w\./\-]+)\s+(?P<duration>[\d\.]+s)\s+coverage:\s+(?P<coverage>[\d\.]+% of statements)\s*$`),
-		format:  "%-7[1]s %-63[2]s %7[3]s coverage: %20[4]s",
+		pattern: regexp.MustCompile(`^(?P<result>ok|\?)?\s+(?P<module>[\w\./\-]+)\s+(?:(?P<duration>\d+\.\d+s)\s+)?(?:(?:(?P<covprefix>coverage:)\s+(?P<coverage>\d+\.\d+%)(?P<covsuffix> of statements(?: in [\w\./\-]+)?))|(?P<notice>\[no test files\]))\s*$`),
+		format:  "%-7[1]s %-79[2]s %7[3]s %[7]s%[4]s%7[5]s%[6]s",
 	},
 }
 

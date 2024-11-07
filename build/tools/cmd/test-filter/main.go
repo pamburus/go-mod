@@ -2,12 +2,15 @@ package main
 
 import (
 	"bufio"
+	"flag"
 	"fmt"
 	"io"
 	"iter"
 	"log"
 	"os"
 	"regexp"
+
+	"github.com/pamburus/go-mod/build/tools/internal/colorization"
 )
 
 func readLines(source io.Reader) iter.Seq[string] {
@@ -77,6 +80,11 @@ func colorize(lines iter.Seq[string]) iter.Seq[string] {
 }
 
 func main() {
+	var color string
+
+	flag.StringVar(&color, "color", "auto", "colorize output [auto, always, never]")
+	flag.Parse()
+
 	cwd, err := os.Getwd()
 	if err != nil {
 		log.Fatalf("failed to get current working directory: %v", err)
@@ -85,7 +93,9 @@ func main() {
 	lines := readLines(os.Stdin)
 	lines = absPathToRelative(lines, cwd)
 	lines = reformat(lines)
-	lines = colorize(lines)
+	if colorization.Enabled(color, os.Stdout) {
+		lines = colorize(lines)
+	}
 	err = writeLines(os.Stdout, lines)
 	if err != nil {
 		log.Fatalf("failed to write output: %v", err)
