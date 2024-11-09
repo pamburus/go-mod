@@ -59,8 +59,9 @@ func TestTest(tt *testing.T) {
 			t.ExpectNoError(err)
 			defer rows.Close()
 
-			if count := countRows(rows); count != 2 {
-				t.Errorf("expected 2 rows, got %d", count)
+			expectedRows := 2
+			if count := countRows(rows); count != expectedRows {
+				t.Errorf("expected %d rows, got %d", expectedRows, count)
 			}
 		})
 

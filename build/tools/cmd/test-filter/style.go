@@ -161,6 +161,27 @@ var styleSettings = []styling.Setting{
 		),
 	),
 	styling.NewSetting(
+		`\s+time="[^"]+" level=DEBUG .*$`,
+		styling.NewStyle(
+			styling.NewSequence(sgr.SetForegroundColor(sgr.BrightBlack)),
+			styling.NewSequence(sgr.ResetForegroundColor),
+		),
+	),
+	styling.NewSetting(
+		`\s+time="[^"]+" level=ERROR .*$`,
+		styling.NewStyle(
+			styling.NewSequence(sgr.SetForegroundColor(sgr.Red)),
+			styling.NewSequence(sgr.ResetForegroundColor),
+		),
+	),
+	styling.NewSetting(
+		`\s+time="[^"]+" level=WARN .*$`,
+		styling.NewStyle(
+			styling.NewSequence(sgr.SetForegroundColor(sgr.Yellow)),
+			styling.NewSequence(sgr.ResetForegroundColor),
+		),
+	),
+	styling.NewSetting(
 		`\s+[a-zA-Z0-9_\-\+]+=`,
 		styling.NewStyle(
 			styling.NewSequence(sgr.SetFaint),

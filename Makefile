@@ -34,6 +34,10 @@ ifeq ($(verbose),yes)
 	coverage-filter += -v
 	go-test += -v
 endif
+ifeq ($(debug),yes)
+export SQLTEST_DEBUG=yes
+export SQLTEST_LOG_LEVEL=debug
+endif
  
 ## Run all tests
 .PHONY: all
@@ -70,7 +74,11 @@ test: $(modules:%=test/%)
 ## Run tests for a module
 .PHONY: test/%
 test/%:
+ifeq ($(debug),yes)
+	go list -f '{{.Dir}}' ./$* | xargs -o -S 4096 -I {} ${SHELL} -c 'go test -c -o {}/.test -coverprofile={}/.cover.out {} && {}/.test -test.v -test.coverprofile={}/.cover.out'
+else
 	$(go-test) -fullpath -coverprofile=$*/.cover.out ./$*/... | $(test-filter)
+endif
 
 # ---
 
@@ -101,3 +109,6 @@ tidy/%:
 .PHONY: clean
 clean:
 	rm -f $(modules:%=%/.cover.out)
+	rm -f **/.cover.out
+	rm -f **/.test
+	rm -f **/go.work.sum

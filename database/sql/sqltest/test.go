@@ -119,7 +119,7 @@ func (t *Test[T]) DB() *sql.DB {
 		t.Cleanup(func() {
 			err := t.db.Close()
 			if err != nil {
-				t.Logf("[sqltest] failed to close database: %v", err)
+				logctx.Get(t.ctx).LogAttrs(t.ctx, slog.LevelError, "failed to close database", slog.Any("error", err))
 			}
 		})
 	})

@@ -51,6 +51,7 @@ func (d *database) Debug(ctx context.Context) error {
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
 
+	logctx.Get(ctx).LogAttrs(ctx, slog.LevelDebug, "run command", slog.Any("command", cmd.String()))
 	err = cmd.Run()
 	if err != nil {
 		return fmt.Errorf("failed to run psql command: %w", err)
