@@ -160,4 +160,11 @@ var styleSettings = []styling.Setting{
 			styling.NewSequence(sgr.ResetBoldAndFaint),
 		),
 	),
+	styling.NewSetting(
+		`\s+[a-zA-Z0-9_\-\+]+=`,
+		styling.NewStyle(
+			styling.NewSequence(sgr.SetFaint),
+			styling.NewSequence(sgr.ResetBoldAndFaint),
+		),
+	),
 }
