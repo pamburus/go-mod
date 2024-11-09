@@ -42,14 +42,14 @@ var styleSettings = []styling.Setting{
 		),
 	),
 	styling.NewSetting(
-		`^(?P<result>ok|\?)?\s+(?P<module>[\w\./\-]+)\s+(?P<duration>\d+\.\d+s)?\s+(?P<coverage>(?:coverage:\s+\d+\.\d+% of statements)|(?:\[no test files\]))(?P<in> in [\w\./\-]+)?\s*$`,
+		`^(?P<result>ok|\?)?\s+(?P<module>[\w\./\-]+)\s+(?P<duration>\d+\.\d+s)?\s+(?P<coverage>(?:coverage:\s+(?:(?:\d+\.\d+% of statements)|(?:\[no statements\]))))?(?:\s*\[no [a-z ]+\])*(?P<in>\s+in [\w\./\-]+)?\s*$`,
 		styling.NewStyle(
 			styling.NewSequence(sgr.SetFaint),
 			styling.NewSequence(sgr.ResetBoldAndFaint),
 		),
 	),
 	styling.NewSetting(
-		`\[no test files\]`,
+		`\[no [a-z ]+\]`,
 		styling.NewStyle(
 			styling.NewSequence(sgr.SetItalic, sgr.SetForegroundColor(sgr.BrightBlack)),
 			styling.NewSequence(sgr.ResetItalic, sgr.ResetForegroundColor),
