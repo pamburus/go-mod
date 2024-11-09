@@ -16,9 +16,12 @@ all-modules := $(shell go list -m -f '{{.Dir}}')
 all-modules := $(all-modules:$(PWD)/%=%)
 endif
 
+# Auxiliary modules, not to be tested
+aux-modules += build/tools
+
 # Populate module list to test
 ifndef modules
-modules := $(filter-out build/tools,$(all-modules))
+modules := $(filter-out $(aux-modules),$(all-modules))
 endif
 
 # Tools
