@@ -9,6 +9,7 @@ import (
 	"log"
 	"os"
 	"regexp"
+	"strings"
 
 	"github.com/pamburus/go-mod/build/tools/internal/colorization"
 )
@@ -37,7 +38,7 @@ func writeLines(target io.Writer, lines iter.Seq[string]) error {
 }
 
 func absPathToRelative(lines iter.Seq[string], cwd string) iter.Seq[string] {
-	pattern := regexp.MustCompile(`^(?P<prefix>\s*Error Trace:\s*)` + regexp.QuoteMeta(cwd) + `/(?P<path>[^:]+):(?P<line>[0-9]+)\s*$`)
+	pattern := regexp.MustCompile(`(?P<prefix>\s)` + regexp.QuoteMeta(cwd) + `/(?P<path>[^:]+):(?P<line>[0-9]+)`)
 
 	return func(yield func(string) bool) {
 		for line := range lines {
@@ -89,6 +90,8 @@ func main() {
 	if err != nil {
 		log.Fatalf("failed to get current working directory: %v", err)
 	}
+
+	cwd = strings.ReplaceAll(cwd, `\`, `/`)
 
 	lines := readLines(os.Stdin)
 	lines = absPathToRelative(lines, cwd)
