@@ -1,3 +1,4 @@
 .cover.out
+.test
 .vscode
 go.work.sum
