@@ -70,7 +70,7 @@ test: $(modules:%=test/%)
 ## Run tests for a module
 .PHONY: test/%
 test/%:
-	$(go-test) -coverprofile=$*/.cover.out ./$*/... | $(test-filter)
+	$(go-test) -fullpath -coverprofile=$*/.cover.out ./$*/... | $(test-filter)
 
 # ---
 
