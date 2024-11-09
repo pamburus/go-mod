@@ -15,10 +15,10 @@ import (
 	"time"
 
 	"github.com/pamburus/go-mod/database/sql/sqltest/dbs/postgres/instances"
-	"github.com/pamburus/go-mod/database/sql/sqltest/util/abstract/os/exec"
 	"github.com/pamburus/go-mod/database/sql/sqltest/util/logging/logctx"
 	"github.com/pamburus/go-mod/database/sql/sqltest/util/portalloc"
 	"github.com/pamburus/go-mod/database/sql/sqltest/util/random"
+	"github.com/pamburus/go-mod/testing/mocks/os/exec"
 )
 
 // ---

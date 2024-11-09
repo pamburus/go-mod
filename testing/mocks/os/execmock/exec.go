@@ -1,4 +1,4 @@
-package mocks
+package execmock
 
 import (
 	"io"
@@ -7,7 +7,7 @@ import (
 
 	"github.com/stretchr/testify/mock"
 
-	"github.com/pamburus/go-mod/database/sql/sqltest/util/abstract/os/exec"
+	"github.com/pamburus/go-mod/testing/mocks/os/exec"
 )
 
 func NewExec(t testing.TB) *Exec {
@@ -89,9 +89,9 @@ func (m *Process) Signal(sig os.Signal) error {
 }
 
 func (m *Process) Wait() (exec.ProcessState, error) {
-	args := m.Called()
+	ret := m.Called()
 
-	return args.Get(0).(exec.ProcessState), args.Error(1)
+	return ret.Get(0).(exec.ProcessState), ret.Error(1)
 }
 
 // ---

@@ -19,6 +19,7 @@ endif
 
 # Auxiliary modules, not to be tested
 aux-modules += build/tools
+aux-modules += testing/mocks
 
 # Populate module list to test
 ifndef modules
