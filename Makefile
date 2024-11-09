@@ -13,7 +13,8 @@ import-path := github.com/pamburus/go-mod
 # Populate complete module list, including build tools
 ifndef all-modules
 all-modules := $(shell go list -m -f '{{.Dir}}')
-all-modules := $(all-modules:$(PWD)/%=%)
+all-modules := $(subst \,/,$(all-modules))
+all-modules := $(all-modules:$(abspath .)/%=%)
 endif
 
 # Auxiliary modules, not to be tested
