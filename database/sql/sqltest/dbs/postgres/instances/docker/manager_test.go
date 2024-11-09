@@ -12,7 +12,7 @@ import (
 
 	"github.com/pamburus/go-mod/database/sql/sqltest/dbs/postgres/instances"
 	"github.com/pamburus/go-mod/database/sql/sqltest/dbs/postgres/instances/docker"
-	"github.com/pamburus/go-mod/database/sql/sqltest/dbs/postgres/instances/docker/mocks"
+	"github.com/pamburus/go-mod/testing/mocks/os/execmock"
 )
 
 func TestManager(t *testing.T) {
@@ -33,7 +33,7 @@ func TestManager(t *testing.T) {
 	t.Run("PortAllocFailure", func(t *testing.T) {
 		errAllocationFailure := errors.New("port allocation failed")
 		manager := docker.New(
-			docker.WithExec(mocks.NewExec(t)),
+			docker.WithExec(execmock.NewExec(t)),
 			docker.WithPortAllocator(func() (uint16, error) {
 				return 8800, errAllocationFailure
 			}),
@@ -44,8 +44,8 @@ func TestManager(t *testing.T) {
 	})
 
 	t.Run("Success", func(t *testing.T) {
-		exec := mocks.NewExec(t)
-		command := mocks.NewCommand(t)
+		exec := execmock.NewExec(t)
+		command := execmock.NewCommand(t)
 
 		manager := docker.New(
 			docker.WithExec(exec),
@@ -57,8 +57,8 @@ func TestManager(t *testing.T) {
 		)
 		assert.Equal(t, manager, manager.Manager())
 
-		process := mocks.NewProcess(t)
-		processState := mocks.NewProcessState(t)
+		process := execmock.NewProcess(t)
+		processState := execmock.NewProcessState(t)
 
 		command.On("SetExtraEnv", []string{"POSTGRES_PASSWORD=aiqjsgw3pccqa"}).Once().Return()
 		command.On("SetStderr", mock.Anything).Return()
@@ -114,8 +114,8 @@ func TestManager(t *testing.T) {
 	})
 
 	t.Run("Failure", func(t *testing.T) {
-		exec := mocks.NewExec(t)
-		command := mocks.NewCommand(t)
+		exec := execmock.NewExec(t)
+		command := execmock.NewCommand(t)
 
 		manager := docker.New(
 			docker.WithExec(exec),
@@ -127,8 +127,8 @@ func TestManager(t *testing.T) {
 		)
 		assert.Equal(t, manager, manager.Manager())
 
-		process := mocks.NewProcess(t)
-		processState := mocks.NewProcessState(t)
+		process := execmock.NewProcess(t)
+		processState := execmock.NewProcessState(t)
 
 		command.On("SetExtraEnv", []string{"POSTGRES_PASSWORD=aiqjsgw3pccqa"}).Once().Return()
 		command.On("SetStderr", mock.Anything).Return()

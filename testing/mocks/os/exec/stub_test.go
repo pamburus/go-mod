@@ -7,7 +7,7 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
-	"github.com/pamburus/go-mod/database/sql/sqltest/util/abstract/os/exec"
+	"github.com/pamburus/go-mod/testing/mocks/os/exec"
 )
 
 func TestStub(t *testing.T) {
