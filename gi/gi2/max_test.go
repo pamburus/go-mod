@@ -1,11 +1,10 @@
 package gi2_test
 
 import (
+	"iter"
 	"maps"
 	"slices"
 	"testing"
-
-	"iter"
 
 	"github.com/stretchr/testify/assert"
 

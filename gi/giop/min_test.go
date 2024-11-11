@@ -1,6 +1,7 @@
 package giop_test
 
 import (
+	"cmp"
 	"math"
 	"net/netip"
 	"testing"
@@ -17,8 +18,8 @@ func TestMin(t *testing.T) {
 	})
 
 	t.Run("Float", func(t *testing.T) {
-		assert.Equal(t, 2.5, giop.Min(2.5, 2.5))
-		assert.Equal(t, -3.5, giop.Min(2.5, -3.5))
+		assert.InDelta(t, 2.5, giop.Min(2.5, 2.5), 1e-9)
+		assert.InDelta(t, -3.5, giop.Min(2.5, -3.5), 1e-9)
 	})
 }
 
@@ -37,8 +38,8 @@ func TestMinBy(t *testing.T) {
 			return math.Mod(a, 2)
 		}
 
-		assert.Equal(t, 2.0, giop.MinBy(mod2)(2.0, 3.0))
-		assert.Equal(t, 4.0, giop.MinBy(mod2)(3.0, 4.0))
+		assert.InDelta(t, 2.0, giop.MinBy(mod2)(2.0, 3.0), 1e-9)
+		assert.InDelta(t, 4.0, giop.MinBy(mod2)(3.0, 4.0), 1e-9)
 	})
 }
 
@@ -75,16 +76,7 @@ func TestMinByCompare(t *testing.T) {
 
 func TestMinByCompareFunc(t *testing.T) {
 	t.Run("Float", func(t *testing.T) {
-		compare := func(a, b float64) int {
-			if a < b {
-				return -1
-			} else if a > b {
-				return 1
-			}
-			return 0
-		}
-
-		assert.Equal(t, 2.5, giop.MinByCompareFunc(compare)(2.5, 3.5))
-		assert.Equal(t, -3.5, giop.MinByCompareFunc(compare)(2.5, -3.5))
+		assert.InDelta(t, 2.5, giop.MinByCompareFunc(cmp.Compare[float64])(2.5, 3.5), 1e-9)
+		assert.InDelta(t, -3.5, giop.MinByCompareFunc(cmp.Compare[float64])(2.5, -3.5), 1e-9)
 	})
 }

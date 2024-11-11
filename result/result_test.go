@@ -7,6 +7,7 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 
 	"github.com/pamburus/go-mod/result"
 )
@@ -28,21 +29,21 @@ func TestOk(t *testing.T) {
 
 	val, err := res.Unwrap()
 	assert.Equal(t, 42, val)
-	assert.NoError(t, err)
+	require.NoError(t, err)
 
 	val, err = res.UnwrapNoPanic()
 	assert.Equal(t, 42, val)
-	assert.NoError(t, err)
+	require.NoError(t, err)
 
 	assert.NoError(t, res.Err())
 
 	val, err = result.Unwrap(res)
 	assert.Equal(t, 42, val)
-	assert.NoError(t, err)
+	require.NoError(t, err)
 
 	val, err = result.UnwrapNoPanic(res)
 	assert.Equal(t, 42, val)
-	assert.NoError(t, err)
+	require.NoError(t, err)
 
 	val, ok = result.Value(res)
 	assert.True(t, ok)
@@ -51,7 +52,7 @@ func TestOk(t *testing.T) {
 	assert.True(t, result.IsOk(res))
 	assert.False(t, result.IsErr(res))
 	assert.False(t, result.IsPanic(res))
-	assert.NoError(t, result.Err(res))
+	require.NoError(t, result.Err(res))
 }
 
 func TestErr(t *testing.T) {
@@ -287,7 +288,7 @@ func TestUnwrapCollect(t *testing.T) {
 		}
 
 		items, err := result.UnwrapCollect([]int(nil), seq)
-		assert.ErrorIs(t, err, assert.AnError)
+		require.ErrorIs(t, err, assert.AnError)
 		assert.Nil(t, items)
 	})
 
@@ -299,7 +300,7 @@ func TestUnwrapCollect(t *testing.T) {
 		}
 
 		items, err := result.UnwrapCollect([]int(nil), seq)
-		assert.NoError(t, err)
+		require.NoError(t, err)
 		assert.Equal(t, []int{42, 43, 44}, items)
 	})
 }

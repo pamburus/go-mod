@@ -15,8 +15,8 @@ func TestAdd(t *testing.T) {
 	})
 
 	t.Run("Float", func(t *testing.T) {
-		assert.Equal(t, 5.0, giop.Add(2.5, 2.5))
-		assert.Equal(t, -1.0, giop.Add(2.5, -3.5))
+		assert.InDelta(t, 5.0, giop.Add(2.5, 2.5), 1e-9)
+		assert.InDelta(t, -1.0, giop.Add(2.5, -3.5), 1e-9)
 	})
 }
 
@@ -27,8 +27,8 @@ func TestSubtract(t *testing.T) {
 	})
 
 	t.Run("Float", func(t *testing.T) {
-		assert.Equal(t, 0.0, giop.Subtract(2.5, 2.5))
-		assert.Equal(t, 6.0, giop.Subtract(2.5, -3.5))
+		assert.InDelta(t, 0.0, giop.Subtract(2.5, 2.5), 1e-9)
+		assert.InDelta(t, 6.0, giop.Subtract(2.5, -3.5), 1e-9)
 	})
 }
 
@@ -39,8 +39,8 @@ func TestMultiply(t *testing.T) {
 	})
 
 	t.Run("Float", func(t *testing.T) {
-		assert.Equal(t, 6.25, giop.Multiply(2.5, 2.5))
-		assert.Equal(t, -8.75, giop.Multiply(2.5, -3.5))
+		assert.InDelta(t, 6.25, giop.Multiply(2.5, 2.5), 1e-9)
+		assert.InDelta(t, -8.75, giop.Multiply(2.5, -3.5), 1e-9)
 	})
 }
 
@@ -52,8 +52,8 @@ func TestDivide(t *testing.T) {
 	})
 
 	t.Run("Float", func(t *testing.T) {
-		assert.Equal(t, 1.0, giop.Divide(2.5, 2.5))
-		assert.Equal(t, -0.625, giop.Divide(2.5, -4))
+		assert.InDelta(t, 1.0, giop.Divide(2.5, 2.5), 1e-9)
+		assert.InDelta(t, -0.625, giop.Divide(2.5, -4), 1e-9)
 	})
 }
 
@@ -64,8 +64,8 @@ func TestIntMod(t *testing.T) {
 }
 
 func TestMod(t *testing.T) {
-	assert.Equal(t, 0.5, giop.Mod(2.5, 2.0))
-	assert.Equal(t, 0.5, giop.Mod(2.5, -2.0))
+	assert.InDelta(t, 0.5, giop.Mod(2.5, 2.0), 1e-9)
+	assert.InDelta(t, 0.5, giop.Mod(2.5, -2.0), 1e-9)
 }
 
 func TestBinaryAnd(t *testing.T) {

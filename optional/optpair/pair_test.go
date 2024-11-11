@@ -178,7 +178,7 @@ func TestLeft(t *testing.T) {
 	left := optpair.Left(pair)
 	assert.True(t, left.IsSome())
 	v1, ok := left.Unwrap()
-	assert.Equal(t, true, ok)
+	assert.True(t, ok)
 	assert.Equal(t, 1, v1)
 
 	pair = optpair.None[int, string]()
@@ -191,7 +191,7 @@ func TestRight(t *testing.T) {
 	right := optpair.Right(pair)
 	assert.True(t, right.IsSome())
 	v2, ok := right.Unwrap()
-	assert.Equal(t, true, ok)
+	assert.True(t, ok)
 	assert.Equal(t, "one", v2)
 
 	pair = optpair.None[int, string]()
@@ -296,6 +296,7 @@ func TestUnwrapFilter(t *testing.T) {
 	values := slices.Values(items)
 
 	collected := map[int]string{}
+
 	optpair.UnwrapFilter(values)(func(k int, v string) bool {
 		collected[k] = v
 		return true

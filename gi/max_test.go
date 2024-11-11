@@ -2,10 +2,9 @@ package gi_test
 
 import (
 	"cmp"
+	"iter"
 	"slices"
 	"testing"
-
-	"iter"
 
 	"github.com/stretchr/testify/assert"
 

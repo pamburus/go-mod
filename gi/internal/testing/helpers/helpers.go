@@ -51,6 +51,7 @@ func FlattenPairs[V any](pairs iter.Seq2[V, V]) iter.Seq[V] {
 			if !yield(v1) {
 				return
 			}
+
 			if !yield(v2) {
 				return
 			}
@@ -77,7 +78,9 @@ func Limit[V any](n int, values iter.Seq[V]) iter.Seq[V] {
 			if i == 0 {
 				return
 			}
+
 			i--
+
 			if !yield(v) {
 				return
 			}
@@ -93,7 +96,9 @@ func LimitPairs[V1, V2 any](n int, values iter.Seq2[V1, V2]) iter.Seq2[V1, V2] {
 			if i == 0 {
 				return
 			}
+
 			i--
+
 			if !yield(v1, v2) {
 				return
 			}
