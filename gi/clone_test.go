@@ -12,19 +12,19 @@ import (
 
 func TestCloned(t *testing.T) {
 	headers := []http.Header{
-		{"a": {"1"}},
-		{"b": {"2"}},
-		{"c": {"3"}},
+		{"A": {"1"}},
+		{"B": {"2"}},
+		{"C": {"3"}},
 	}
 
 	result := slices.Collect(gi.Cloned(slices.Values(headers)))
 
-	headers[0].Set("a", "4")
+	headers[0].Set("A", "4")
 
 	expected := []http.Header{
-		{"a": {"1"}},
-		{"b": {"2"}},
-		{"c": {"3"}},
+		{"A": {"1"}},
+		{"B": {"2"}},
+		{"C": {"3"}},
 	}
 	assert.Equal(t, expected, result)
 }

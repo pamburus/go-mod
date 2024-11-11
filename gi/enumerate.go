@@ -20,6 +20,7 @@ func EnumerateFrom[V any, I constraints.Integer](begin I, values iter.Seq[V]) it
 			if !yield(i, value) {
 				return
 			}
+
 			i++
 		}
 	}

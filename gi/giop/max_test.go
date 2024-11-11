@@ -17,9 +17,9 @@ func TestMax(t *testing.T) {
 	})
 
 	t.Run("Float", func(t *testing.T) {
-		assert.Equal(t, 2.5, giop.Max(2.5, 2.5))
-		assert.Equal(t, 2.5, giop.Max(2.5, -3.5))
-		assert.Equal(t, 3.5, giop.Max(2.5, 3.5))
+		assert.InDelta(t, 2.5, giop.Max(2.5, 2.5), 1e-9)
+		assert.InDelta(t, 2.5, giop.Max(2.5, -3.5), 1e-9)
+		assert.InDelta(t, 3.5, giop.Max(2.5, 3.5), 1e-9)
 	})
 }
 
@@ -38,8 +38,8 @@ func TestMaxBy(t *testing.T) {
 			return math.Mod(a, 2)
 		}
 
-		assert.Equal(t, 3.0, giop.MaxBy(mod2)(2.0, 3.0))
-		assert.Equal(t, 3.0, giop.MaxBy(mod2)(3.0, 4.0))
+		assert.InDelta(t, 3.0, giop.MaxBy(mod2)(2.0, 3.0), 1e-9)
+		assert.InDelta(t, 3.0, giop.MaxBy(mod2)(3.0, 4.0), 1e-9)
 	})
 }
 

@@ -89,6 +89,7 @@ func TestIn(t *testing.T) {
 	set2 := []int{8, 0, 9}
 	inSet1 := gi.In(set1)
 	inSet2 := gi.In(set2)
+
 	assert.True(t, inSet1(4))
 	assert.False(t, inSet1(3))
 	assert.True(t, inSet2(0))

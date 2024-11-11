@@ -7,12 +7,12 @@ import (
 
 // WrapPanic wraps a panic value into an error.
 func WrapPanic(value any) error {
-	return &errPanic{value}
+	return &errPanicError{value}
 }
 
 // UnwrapPanic unwraps a panic value from an error previously wrapped with [WrapPanic].
 func UnwrapPanic(err error) (any, bool) {
-	var e *errPanic
+	var e *errPanicError
 	if errors.As(err, &e) {
 		return e.value, true
 	}
@@ -32,15 +32,15 @@ func RecallPanic(err error) error {
 
 // ---
 
-type errPanic struct {
+type errPanicError struct {
 	value any
 }
 
-func (e *errPanic) Error() string {
+func (e *errPanicError) Error() string {
 	return fmt.Sprintf("panic: %v", e.value)
 }
 
-func (e *errPanic) Unwrap() error {
+func (e *errPanicError) Unwrap() error {
 	if err, ok := e.value.(error); ok {
 		return err
 	}

@@ -31,6 +31,7 @@ func TestLimitEarlyExit(t *testing.T) {
 
 	for k, v := range limited {
 		result[k] = v
+
 		if k == 1 {
 			break
 		}

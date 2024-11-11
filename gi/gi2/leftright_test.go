@@ -14,18 +14,18 @@ func TestLeft(t *testing.T) {
 	pairs := slices.All([]int{31, 32, 33, 34})
 
 	values := slices.Collect(gi2.Left(pairs))
-	assert.Equal(t, values, []int{0, 1, 2, 3})
+	assert.Equal(t, []int{0, 1, 2, 3}, values)
 
 	values = slices.Collect(helpers.Limit(2, gi2.Left(pairs)))
-	assert.Equal(t, values, []int{0, 1})
+	assert.Equal(t, []int{0, 1}, values)
 }
 
 func TestRight(t *testing.T) {
 	pairs := slices.All([]int{31, 32, 33, 34})
 
 	values := slices.Collect(gi2.Right(pairs))
-	assert.Equal(t, values, []int{31, 32, 33, 34})
+	assert.Equal(t, []int{31, 32, 33, 34}, values)
 
 	values = slices.Collect(helpers.Limit(2, gi2.Right(pairs)))
-	assert.Equal(t, values, []int{31, 32})
+	assert.Equal(t, []int{31, 32}, values)
 }

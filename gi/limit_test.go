@@ -27,6 +27,7 @@ func TestLimitEarlyExit(t *testing.T) {
 
 	for v := range limited {
 		result = append(result, v)
+
 		if v == 2 {
 			break
 		}

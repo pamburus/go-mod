@@ -12,8 +12,8 @@ import (
 
 func TestWrapUnwrapPanic(t *testing.T) {
 	err := result.WrapPanic(42)
-	assert.Error(t, err)
-	assert.NoError(t, errors.Unwrap(err))
+	require.Error(t, err)
+	require.NoError(t, errors.Unwrap(err))
 
 	val, ok := result.UnwrapPanic(err)
 	require.True(t, ok)
@@ -25,18 +25,18 @@ func TestWrapUnwrapPanic(t *testing.T) {
 	assert.Nil(t, val)
 
 	err = result.WrapPanic(assert.AnError)
-	assert.Error(t, err)
+	require.Error(t, err)
 
 	val, ok = result.UnwrapPanic(err)
 	require.True(t, ok)
 	assert.Equal(t, assert.AnError, val)
 	assert.Equal(t, "panic: "+assert.AnError.Error(), err.Error())
-	assert.ErrorIs(t, err, assert.AnError)
+	require.ErrorIs(t, err, assert.AnError)
 }
 
 func TestRecallPanic(t *testing.T) {
 	err := result.WrapPanic(42)
-	assert.PanicsWithValue(t, 42, func() {
+	assert.PanicsWithValue(t, 42, func() { //nolint:wsl // err is used here
 		_ = result.RecallPanic(err)
 	})
 

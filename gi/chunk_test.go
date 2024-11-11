@@ -167,19 +167,26 @@ func TestChunk(t *testing.T) {
 			{7, 8, 9},
 		}
 
-		i := 0
 		var chunks [][]int
+
+		i := 0
+
 		for chunk := range result {
 			var c []int
+
 			j := 0
+
 			for v := range chunk {
 				c = append(c, v)
+
 				j++
 				if j == i+1 {
 					break
 				}
 			}
+
 			chunks = append(chunks, c)
+
 			i++
 		}
 
@@ -197,19 +204,25 @@ func TestChunk(t *testing.T) {
 			{7},
 		}
 
-		i := 0
 		var chunks [][]int
+
+		i := 0
+
 		for chunk := range result {
 			var c []int
 			j := 0
+
 			for v := range chunk {
 				c = append(c, v)
+
 				j++
 				if j == 3-i {
 					break
 				}
 			}
+
 			chunks = append(chunks, c)
+
 			i++
 		}
 
@@ -227,20 +240,27 @@ func TestChunk(t *testing.T) {
 			{7, 8, 9},
 		}
 
-		i := 0
 		var chunks [][]int
+
+		i := 0
+
 		for chunk := range result {
 			var c []int
 			j := 0
+
 			for v := range chunk {
 				c = append(c, v)
+
 				j++
 				if j == i+1 {
 					break
 				}
 			}
-			c = slices.AppendSeq(c, chunk)
+
+			assert.Empty(t, slices.Collect(chunk))
+
 			chunks = append(chunks, c)
+
 			i++
 		}
 

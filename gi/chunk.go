@@ -17,6 +17,7 @@ func Chunk[V any, I constraints.Integer](values iter.Seq[V], size I) iter.Seq[it
 		defer stop()
 
 		var v V
+
 		hasMore := true
 		i := I(1)
 
@@ -31,19 +32,23 @@ func Chunk[V any, I constraints.Integer](values iter.Seq[V], size I) iter.Seq[it
 			}
 
 			i = size
+
 			valid := true
 			needMore := yield(func(yield func(V) bool) {
 				for ; valid && i > 0; i-- {
 					if valid = yield(v); !valid {
 						return
 					}
+
 					v, hasMore = next()
 					if !hasMore {
 						return
 					}
 				}
+
 				valid = false
 			})
+
 			if !needMore {
 				return
 			}
@@ -67,6 +72,7 @@ func ChunkToSlices[V any](values iter.Seq[V], size int) iter.Seq[[]V] {
 
 		for value := range values {
 			chunk = append(chunk, value)
+
 			i++
 			if i == size {
 				if !yield(chunk) {

@@ -223,6 +223,7 @@ func TestUnwrapFilter(t *testing.T) {
 	values := slices.Values(items)
 
 	collected := []int{}
+
 	optval.UnwrapFilter(values)(func(v int) bool {
 		collected = append(collected, v)
 		return true
@@ -231,6 +232,7 @@ func TestUnwrapFilter(t *testing.T) {
 	assert.Equal(t, []int{1, 2, 3}, collected)
 
 	collected = collected[:0]
+
 	optval.UnwrapFilter(values)(func(v int) bool {
 		collected = append(collected, v)
 		return v%2 != 0
