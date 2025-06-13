@@ -47,7 +47,9 @@ func absPathToRelative(lines iter.Seq[string], cwd string) iter.Seq[string] {
 	}
 }
 
-func reformat(lines iter.Seq[string]) iter.Seq[string] {
+func reformat(lines iter.Seq[string], width int) iter.Seq[string] {
+	reformatSettings := reformatSettings(width)
+
 	return func(yield func(string) bool) {
 		for line := range lines {
 			for _, setting := range reformatSettings {
@@ -81,9 +83,13 @@ func colorize(lines iter.Seq[string]) iter.Seq[string] {
 }
 
 func main() {
-	var color string
+	var (
+		color string
+		width int
+	)
 
 	flag.StringVar(&color, "color", "auto", "colorize output [auto, always, never]")
+	flag.IntVar(&width, "width", 79, "module column width")
 	flag.Parse()
 
 	cwd, err := os.Getwd()
@@ -95,7 +101,7 @@ func main() {
 
 	lines := readLines(os.Stdin)
 	lines = absPathToRelative(lines, cwd)
-	lines = reformat(lines)
+	lines = reformat(lines, width)
 	if colorization.Enabled(color, os.Stdout) {
 		lines = colorize(lines)
 	}
